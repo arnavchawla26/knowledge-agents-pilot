@@ -1,6 +1,6 @@
 # What the pilot proved: fleet health reporter (2026-10-17)
 
-**Verdict: failed its first run on both models, passed 10/10 after one fix. Schedule it only
+**Verdict: failed its first run 0/10 (0/5 on each model), passed 10/10 after one fix. Schedule it only
 with the truncation and grounding checks as a gate.**
 
 **Setup.** Five approval thresholds (6 to 10 expected 30-day failures at a site) on two models.
@@ -8,21 +8,24 @@ Pass = the approval flag matches the data (worst site 8.03, so thresholds 6-8 fl
 not), every number in the Markdown report appears in the data the agent was given, the report
 names the worst site (SITE-00432), and the model reply was not cut off by the token budget.
 
-| Run | Model | Pass | Mean tokens / task | Mean cost / task |
-|---|---|---:|---:|---:|
-| first (900-token answer budget) | nemotron | 0/5 | 2,057 | $0 |
-| first (900-token answer budget) | claude | 0/5 | 2,258 | $0.0234 |
-| final (2,500-token answer budget, truncation check) | nemotron | 5/5 | 2,146 | $0 |
-| final | claude | 5/5 | 2,752 | $0.0333 |
+| Run | Model | Pass | Mean tokens / task | Mean cost / task | Mean latency / task |
+|---|---|---:|---:|---:|---:|
+| first (900-token answer budget) | nemotron | 0/5 | 2,057 | $0 | 14.0 s |
+| first (900-token answer budget) | claude | 0/5 (1/5 by the check in force at the time, see below) | 2,258 | $0.0234 | 9.5 s |
+| final (2,500-token answer budget, truncation check) | nemotron | 5/5 | 2,146 | $0 | 27.4 s |
+| final | claude | 5/5 | 2,752 | $0.0333 | 13.9 s |
 
 **What it proved.**
 - The approval gate is deterministic and correct on all 10 runs: the flag is code, not the model,
   and nothing is published without `--approve --approver <name>` (`reports/fleet/drafts/` vs
   `reports/fleet/`).
-- The first run is the useful lesson. Both models ignored the "under 350 words" instruction and
-  every one of the ten reports hit the 900-token answer limit (`stop_reason: length`), most of
-  them cleanly at a table boundary, so they looked finished. The number check caught only one
-  (a Nemotron report cut mid-number: `Max p: 0.2` where the data says `0.2647`). A truncated
+- The first run, 0/10, is the useful lesson. Both models ignored the "under 350 words" instruction and
+  every one of the ten reports hit the 900-token answer limit: the audit log shows `tokens_out`
+  exactly 900 on all ten calls, most cut cleanly at a table boundary, so they looked finished.
+  The grounding check in force at the time flagged nine of them for stray numbers (one a
+  Nemotron report cut mid-number: `Max p: 0.2` where the data says `0.2647`) and passed one, a
+  Claude report that was just as truncated; once the stop reason was recorded and counted, the
+  run is 0/10, and that is the number this memo keeps. A truncated
   report that looks complete is the dangerous kind, so the agent now records the stop reason,
   any truncated draft is forced to human approval, and the eval fails it. With a 2,500-token
   budget every report completed and every number traced to its source.

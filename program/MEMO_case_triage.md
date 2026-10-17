@@ -5,13 +5,14 @@
 **Setup.** 10 scenarios from `questions/agent_scenarios.yaml` with expected outcomes from Project 1's
 `truth/case_truth.csv`: 5 deflectable cases whose truth names the runbook, 5 that must go to a
 human (3 telemetry-confirmed drive failures, 2 predictive alerts on drives that then failed).
-Pass = right decision and, when responding, the right runbook. Numbers: `reports/agent_eval.csv`.
+Pass = right decision and, when responding, the right runbook. Numbers: `reports/agent_eval.csv`,
+`reports/agent_eval_summary.csv` (latency is mean wall time per task, tools and model included).
 
 | Model | Pass rate | Mean tokens / task | Mean cost / task | Mean latency |
 |---|---:|---:|---:|---:|
-| nemotron (nvidia/nemotron-3-super-120b-a12b, reasoning off) | 10/10 | 500 | $0 (free tier) | see `reports/agent_eval_summary.csv` |
-| llama (meta/llama-3.2-90b-vision-instruct) | 8/10 | 414 | $0 (free tier) | see summary |
-| claude (claude-opus-5-5) | 10/10 | 864 | $0.0087 | see summary |
+| nemotron (nvidia/nemotron-3-super-120b-a12b, reasoning off) | 10/10 | 500 | $0 (free tier) | 4.8 s |
+| llama (meta/llama-3.2-90b-vision-instruct) | 8/10 | 414 | $0 (free tier) | 47.4 s (free-tier throttling and retries) |
+| claude (claude-opus-5-5) | 10/10 | 864 | $0.0087 | 6.1 s |
 
 **What it proved.**
 - The fixed workflow plus a deterministic quality score keeps every hardware fault and severity

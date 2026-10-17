@@ -10,11 +10,11 @@ asset's telemetry failure flag, last-7-day SMART counters, Project 1's 30-day ri
 visits and the drive sled stock at the regional depot; the model's recommendation and a rule's
 are both computed and the more conservative wins on disagreement.
 
-| Model | Pass rate | Mean tokens / task | Mean cost / task |
-|---|---:|---:|---:|
-| nemotron | 10/10 (9/10 on the model's own answer) | 1,055 | $0 |
-| llama | 10/10 | 854 | $0 |
-| claude | 10/10 | 1,518 | $0.0122 |
+| Model | Pass rate | Mean tokens / task | Mean cost / task | Mean latency / task |
+|---|---:|---:|---:|---:|
+| nemotron | 10/10 (9/10 on the model's own answer) | 1,055 | $0 | 5.6 s |
+| llama | 10/10 | 854 | $0 | 24.5 s (free-tier throttling) |
+| claude | 10/10 | 1,518 | $0.0122 | 5.3 s |
 
 **What it proved.**
 - With corroborating evidence in front of it, every model agreed with the truth on the five real

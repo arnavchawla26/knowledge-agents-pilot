@@ -5,7 +5,8 @@
    Project 1 checkout. Never commit `.env`.
 2. `make up` (Elasticsearch on 9201, source Postgres on 5434), then `make load` (about 20 s),
    then `make index` (22 runbooks + 500 case notes, about 1 min of NIM embedding calls).
-3. Optional, NVIDIA Auto Ontology: `docs/AUTO_ONTOLOGY.md` steps 1-4, then `make ao-smoke`.
+3. Optional, NVIDIA Auto Ontology: `docs/AUTO_ONTOLOGY.md` steps 1-4, then `make ao-enrich` (glossary
+   into its term definitions) and `make ao-smoke`.
 
 ## Run an agent
 - `uv run python -m kap.agents.case_triage CS-0000066`

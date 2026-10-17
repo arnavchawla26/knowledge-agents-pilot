@@ -66,3 +66,38 @@ Dated the day each decision was made. Fallbacks are decisions too.
 12. **NIM cost is reported as zero dollars with tokens shown.** The free developer tier bills
     nothing; inventing a per-token price would be a made-up number. Claude is at Anthropic list
     price (`questions/pricing.yaml`).
+
+## 2026-10-17, evening (closing the pilot at v0.1)
+
+13. **Push the glossary into Auto Ontology through its management API instead of recompiling.**
+    The compiled semantic layer had an empty `description` on all 26 Terms (only the column
+    attributes carried LLM-written text), which is why retrieval never surfaced the `case` and
+    `installed_asset` tables that join dispatches to products. `kap.eval.ao_enrich` does what
+    NVIDIA's management skill documents: `PATCH /api/terms/{id}` with a description built from
+    `questions/glossary.yaml` (17 terms; the backend re-embeds each one, no compile needed) and
+    `POST /api/sql-attributes` after `/validate` for eight derived definitions (parsed case
+    timestamps, repeat dispatch, service failure, deflectable case, risky pod, warranty status,
+    parts lead time, the serial join). A `semantic-compilation/reset` would have regenerated the
+    same empty descriptions and is documented as destructive. Calls went to the backend on
+    localhost, as in item 5.
+14. **No SQL attribute may be a join-path query that answers an evaluation question.** The eight
+    attributes are the glossary's own SQL hints, the same text the per-model "schema + glossary"
+    arm gets in its prompt; adding "dispatches per product family" as a reusable query would have
+    handed Auto Ontology the gold SQL for M02 and the comparison would mean nothing.
+15. **Before and after are compared on cached "before" answers only.** The as-compiled state no
+    longer exists on the install once the terms are patched, so the "before" column is the four
+    questions answered on 2026-10-17 morning (`cache/auto_ontology`, keyed without a layer tag);
+    the extra questions in the second pass have an "after" number and no "before", and the report
+    says so rather than inventing one. Cache keys now carry an `AO_LAYER` tag so the two states
+    never collide.
+16. **Rephrased questions are extra rows, not replacements.** The query skill says to discover
+    the layer's nouns and check coverage before asking; the rephrased variants name the term, the
+    join path and the period. They are reported next to the original wording so the reader can
+    see what the phrasing bought, and the headline stays on the original wording, which is what
+    an operator would type.
+17. **The fleet reporter's first run is reported as 0/10.** By the grounding check in force when
+    it ran it was 1/10 (one Claude report happened to contain no stray number); the audit log
+    shows every one of the ten calls stopped at exactly the 900-token budget, and once truncation
+    counts, which it now does, the run is 0/10. The memo states both.
+18. **Tag v0.1 and stop.** Everything in the design is either shipped or cut with a reason in
+    `README.md`'s Scope table. Nothing is scheduled to run unattended.
