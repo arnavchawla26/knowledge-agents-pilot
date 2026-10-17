@@ -16,7 +16,7 @@ model:
 
 | Dell AI Data Platform piece | Here |
 |---|---|
-| Unified Semantic Layer, extendable with NVIDIA Auto Ontology | NVIDIA Auto Ontology (pinned 2026-10-15) ingesting the warehouse: 26 tables, 221 columns, a compiled semantic layer of 26 terms, NL-to-SQL with provenance through its API; plus a 20-term glossary (`questions/glossary.yaml`) that is the agents' owner-set guidance |
+| Unified Semantic Layer, extendable with NVIDIA Auto Ontology | NVIDIA Auto Ontology (pinned 2026-10-15) ingesting the warehouse: 26 tables, 221 columns, a compiled semantic layer of 26 terms, NL-to-SQL with provenance through its API; plus a 20-term glossary (`questions/glossary.yaml`) that is the agents' owner-set guidance and was pushed into Auto Ontology's term definitions through its management API (`kap.eval.ao_enrich`) |
 | Data Search Engine (hybrid keyword + vector) | Elasticsearch 8 with BM25 + NeMo Retriever embeddings (`nvidia/nemotron-3-embed-1b` via NIM), reciprocal rank fusion, over 22 runbooks and 500 case notes |
 | Context handed to models through MCP | `kap.mcp_server` (MCP Python SDK 2.x): `sql_query` (read-only, allow-listed, row-capped), `search_runbooks`, `asset_history`, `parts_on_hand`, `fleet_risk`; every call audited |
 | Knowledge Agents with permissions, guardrails, cost thresholds | three agents, each a YAML config: model, tools it may call, tables it may see, quality threshold, token budget, model-call cap; one adapter across Nemotron and Llama (NIM) and Claude (Anthropic) |
@@ -71,14 +71,33 @@ but it was written by the same person who wrote the questions), and generated da
 
 ![text-to-SQL summary](reports/eval_summary.png)
 
-NVIDIA Auto Ontology's own pipeline (Nemotron, its default flow) was run through its API on
-three questions only, because each took 92 to 218 s and the free NIM tier was shared with the
-matrix above (`reports/auto_ontology_smoke.md`, `reports/eval_results_ao.csv`). It answered the
-single-table count correctly (E01: 1,046 severity-1 cases, SQL and provenance returned) and
-missed the two others: on the dispatch-per-product-family question it declared that no join path
-existed and returned zeros, and on "cases opened last month" it did not handle the two timestamp
-formats. 1 of 3 by execution match. That is a finding about an out-of-the-box deployment at this
-commit on this schema, not a benchmark of the product.
+NVIDIA Auto Ontology's own pipeline (Nemotron, its default flow) was run through its API twice,
+because each question takes 1.5 to 9 minutes on the free NIM tier shared with the matrix above
+(`reports/auto_ontology_smoke.md`, `reports/auto_ontology_rerun.csv`, `docs/AUTO_ONTOLOGY.md`).
+
+- As compiled: 1 of 3 (E01 right; on M02 it declared that no join path existed and returned
+  zeros; on H01 it mishandled the two timestamp formats and used today's date). Its own model
+  export showed why: every one of its 26 Term descriptions was empty, so retrieval never put the
+  `case` and `installed_asset` tables in front of the model even though the semantic foreign
+  keys between them were in its graph.
+- Then the glossary was pushed into its semantic layer through its management API (17 Term
+  descriptions via `PATCH /api/terms`, eight SQL attributes via `POST /api/sql-attributes`;
+  `kap.eval.ao_enrich`, no recompilation). After: the same three questions in the same words
+  still fail, differently (M02 now invents a join through order lines; H03 applies the
+  repeat-dispatch definition but drops the family join; H01 now parses both timestamp formats
+  but still anchors "last month" on `current_date`); the same three rephrased in the layer's own
+  nouns with the join path and the period spelled out pass, 3 of 3; six more questions from the
+  set scored 4 of 6 (E02, M01, M05, H07 right; H04 used the deflectable-case definition but
+  `current_date` again and dropped the family match; H06 ignored the risky-pod attribute and
+  counted pods from the top-100 heuristic flag). Net: 5 of 10 on original wording, 1 of 4 before
+  on the four questions that have a before; 74 to 521 s per question, median 144 s.
+
+Reading: the definitions landed (the SQL after carries the glossary's timestamp parse and
+category rules) but the pipeline's retrieval decides which tables the model sees, and a reference
+date written into a Term description is not something it applies; a question phrased the way the
+catalog is phrased gets through, which is what its query skill says to do. This is a finding about
+an out-of-the-box deployment at this commit on this schema with one model, not a benchmark of
+the product, and the per-model ontology numbers above remain the pilot's own harness.
 
 ### Runbook search (`reports/search_eval.csv`, 15 hand-labelled queries)
 
@@ -120,30 +139,49 @@ limited, not for production).
 
 ### Governance checks
 
-- `uv run pytest -q`: 43 tests, including `tests/test_injection.py` (instructions inside case
+- `uv run pytest -q`: 45 tests, including `tests/test_injection.py` (instructions inside case
   notes and runbook text do not change the tools an agent calls, verified through the real MCP
   server) and the server-side permission test (an agent whose client is patched to call a tool
   outside its YAML permissions is refused by the server and the refusal is logged).
 - The SQL tool and the eval both run as a Postgres role with `default_transaction_read_only`
   and a 30 s statement timeout, behind an allow-list that rejects anything but one SELECT/WITH.
 
-## What was not achievable, and why
+## Scope: every design item, done or cut
 
-- **NVIDIA ontology-sql-eval's benchmark was not run.** It installs, but its two-arm benchmark
-  needs NeMo Gym with Ray resource servers, a second Auto Ontology install sharing the pgvector
-  store and a code-registered dataset, and NVIDIA tested it with GPT 5.5 as the agent. This
-  repository reimplements its scoring rule and exports the question set in its format
-  (`questions/ontology_sql_eval_dataset/`). The numbers above are from this harness.
-- **NeMo Agent Toolkit's agent runtime was not used.** It installs on Python 3.13; its ReAct
-  workflow hands tool choice to the model, which the governance design here forbids. The agents
-  are registered as NAT functions (`src/kap/agents/nat_workflow.py`, `docs/NAT.md`).
-- **Auto Ontology's MCP server (port 3003) is not wired to the agents.** It is a separate
-  `uvx` package at this commit; the agents use this project's MCP server because they need
-  permission scoping and audit. Auto Ontology is the semantic catalog and an evaluation arm.
-- **Project 2's graph was not used for scoping.** The sibling repository's Neo4j was not up when
-  the agents were built; the agents are scoped by a YAML slice (tools and tables) instead.
-- **Llama via Ollama** was dropped: the hosted Llama on NIM covers the model-agnostic claim and
-  this machine has no NVIDIA GPU.
+The design is sections 11 and 12 of the brainstorm notes that planned the three Dell projects.
+Each item is either done, with the file or report that proves it, or cut, with the reason.
+
+| Design item | Status | Where, or why not |
+|---|---|---|
+| NVIDIA Auto Ontology over the warehouse: semantic layer, NL-to-SQL with provenance | done | `docs/AUTO_ONTOLOGY.md`, `reports/auto_ontology_smoke.md` (two passes: as compiled, then with the glossary pushed into its term definitions through its management API), `kap.auto_ontology`, `kap.eval.ao_enrich` |
+| Auto Ontology's MCP server as the agents' tool source | cut | at this commit it is a separate `uvx` package (port 3003) whose tools only read the catalog; the pilot's MCP server is where the audit log and per-agent permissions live, so the agents use that and Auto Ontology is the catalog and an evaluation arm |
+| Elasticsearch hybrid search over runbooks and case notes, NeMo Retriever embeddings via NIM | done | `kap.search` (BM25 + `nvidia/nemotron-3-embed-1b`, RRF), 22 runbooks + 500 case notes, `reports/search_eval.csv` |
+| Three Knowledge Agents built with NeMo Agent Toolkit | done as NAT functions, runtime cut | `src/kap/agents/nat_workflow.py`, `docs/NAT.md`. NAT 1.9.0 installs on Python 3.13, but its ReAct runtime hands tool choice to the model, which the injection tests forbid; the agents are fixed workflows registered as NAT functions |
+| Agents connected through MCP | done | `kap.mcp_server` (MCP SDK 2.x, five read-only tools), `kap.mcp_client`; every call audited |
+| Each agent scoped to a slice of Project 2's graph | cut | Project 2's Neo4j was not up when the agents were built; each agent is scoped by a YAML slice (tools and tables, `agents/*.yaml`) enforced by the server |
+| Per-agent data permissions, quality threshold, token budget | done | `agents/*.yaml`; server-side refusal test in `tests/test_audit_and_permissions.py`; budget and truncation checks in `kap.agents.base` |
+| Model agnostic: Nemotron and Llama via NIM, Claude via API | done | `kap.llm` one adapter, `KAP_MODEL=`; every evaluation ran on all three |
+| Llama locally via Ollama | cut | hosted Llama on NIM already covers the open-model arm, and this machine has no NVIDIA GPU; nothing in the numbers would change except latency |
+| Case triage agent: classify, pull the runbook, draft, escalate when unsure | done | `kap.agents.case_triage`, `program/MEMO_case_triage.md`, 10/10, 8/10, 10/10 |
+| Dispatch readiness agent: asset history, parts on hand, risk score; go / hold / ship-part-first | done | `kap.agents.dispatch_readiness`, `program/MEMO_dispatch_readiness.md`, 10/10 on all three with the conservative-on-disagreement rule |
+| Fleet health reporter: scheduled, drafts the daily report, approval flag above a threshold | done | `kap.agents.fleet_health_reporter`, `program/MEMO_fleet_health_reporter.md` (0/10 first run, 10/10 after the truncation fix), `.github/workflows/fleet_report.yml` |
+| Fleet reporter pulls risky communities from Project 2 | cut | same reason as the graph scoping; it uses Project 1's fleet-risk tables (sites, vaults, top-100 drives) instead |
+| Governance: read-only SQL | done | Postgres role with `default_transaction_read_only` and a 30 s statement timeout, behind `kap.sqlguard`'s allow-list (`tests/test_sqlguard.py`) |
+| Governance: audit log of every tool call | done | `kap.audit`, `audit/*.jsonl` (sample committed), feeds `reports/cost.csv` |
+| Governance: prompt-injection tests | done | `tests/test_injection.py`, five tests through the real MCP server |
+| Governance: approval gates on anything that writes | done | the only write is publishing a fleet report, which needs `--approve --approver <name>`; a truncated draft is forced to approval |
+| Evaluation: question set with ground truth | done | `questions/eval.yaml`, 30 questions, every gold query executed by a test |
+| Evaluation through NVIDIA's ontology-sql-eval harness | cut | its benchmark stage needs NeMo Gym with Ray resource servers, a second Auto Ontology install sharing the pgvector store and a code-registered dataset, and NVIDIA ran it with GPT 5.5 as the agent. Its scoring rule (BIRD execution match) is reimplemented in `kap.eval.scoring` and the question set is exported in its `evaluation.json` shape (`questions/ontology_sql_eval_dataset/`) |
+| Execution accuracy, latency and cost per model, with and without the ontology | done | `reports/eval_results.csv`, `reports/eval_summary.csv`, the matrix above; Auto Ontology's own pipeline as a separate row |
+| Program folder: a charter per agent (problem, owner, success metric, stop criteria) | done | `program/CHARTER_*.md` |
+| Program folder: decision log | done | `program/DECISIONS.md`, dated, fallbacks included |
+| Program folder: weekly status | done | `program/STATUS_2026-W42.md`; the pilot ran one week, so there is one note |
+| Program folder: cost dashboard, tokens and dollars per task | done | `reports/cost.csv`, `reports/cost.png`, from the audit log (`make cost`) |
+| Program folder: runbook | done | `program/RUNBOOK.md` |
+| Program folder: a "what this pilot proved" memo per agent, including one that did not work | done | `program/MEMO_*.md`; the fleet reporter memo keeps its 0/10 first run |
+| Docker Compose for the whole stack | done as two compose projects | `docker-compose.yml` (Elasticsearch, source Postgres) and Auto Ontology's own pinned compose under `vendor/` (`make ao-up`); merging them would mean editing a vendored file at every pin |
+| GitHub Actions for the schedule | done, gated | `.github/workflows/fleet_report.yml` has the daily cron behind a repository variable and runs on manual dispatch until the warehouse is hosted somewhere a runner can reach |
+| Neo4j in the stack | cut | belongs to Project 2; nothing here reads it |
 
 ## Resume-defensible claims
 

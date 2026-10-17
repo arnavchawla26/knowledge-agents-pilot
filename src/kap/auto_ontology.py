@@ -138,9 +138,12 @@ def coverage(question: str) -> dict[str, Any]:
     """POST /api/question-entity-coverage: the REST form of the MCP `check_answerable` step the
     query skill says to run before asking."""
     base = env("AO_BACKEND_URL", "http://localhost:3001")
-    with httpx.Client(timeout=120) as c:
-        r = c.post(f"{base}/api/question-entity-coverage", json={"question": question})
-        return r.json().get("data", {"error": r.text[:300]}) if r.status_code == 200 else {"error": f"HTTP {r.status_code}"}
+    try:
+        with httpx.Client(timeout=300) as c:
+            r = c.post(f"{base}/api/question-entity-coverage", json={"question": question})
+            return r.json().get("data", {"error": r.text[:300]}) if r.status_code == 200 else {"error": f"HTTP {r.status_code}"}
+    except httpx.HTTPError as e:  # the free tier's model and embedding calls behind this endpoint time out at times
+        return {"error": f"{type(e).__name__}: {e}"}
 
 
 if __name__ == "__main__":
