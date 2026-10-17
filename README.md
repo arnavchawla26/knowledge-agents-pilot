@@ -9,8 +9,7 @@ a technical program manager needs to decide whether to scale them.
 On October 6, 2026 Dell announced the next release of the Dell AI Data Platform with an
 Enterprise Knowledge Graph and **Knowledge Agents**: agents built on a curated slice of the graph,
 with owner-set prompt guidance, data access permissions, quality guardrails and token cost
-thresholds, model agnostic across open and closed models. Gaurav Chawla (VP and Dell Fellow,
-ISG) put the operating model in one line: agents become the operator, and humans are brought
+thresholds, model agnostic across open and closed models. The announcement puts the operating model in one line: agents become the operator, and humans are brought
 back in to review or approve "when they need them". This repository is a small, measured
 version of that idea, built on Project 1's warehouse (`services-ops-intelligence`) and its risk
 model:
