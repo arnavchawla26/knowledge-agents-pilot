@@ -4,52 +4,73 @@
 # against the database by tests/test_glossary.py.
 terms:
   Account:
-    definition: A customer company. account.account_id is NOT unique (three spellings, duplicate ids, rules A1-A4); the surrogate key is account_row_id. Count distinct companies with truth/account_resolution.csv, never with count(distinct account_id).
+    definition: >
+      A customer company. account.account_id is NOT unique (three spellings, duplicate ids, rules A1-A4); the surrogate key is account_row_id. Count distinct companies with truth/account_resolution.csv, never with count(distinct account_id).
   Site:
-    definition: A customer location (site.site_id), owned by one account (site.account_id), in one region (site.region, values AMER-West, AMER-East, EMEA, APJ, LATAM).
+    definition: >
+      A customer location (site.site_id), owned by one account (site.account_id), in one region (site.region, values AMER-West, AMER-East, EMEA, APJ, LATAM).
   Installed Asset:
-    definition: One deployed unit (installed_asset.asset_id) at a site, built on one product, with the drive serial in installed_asset.serial_number. About 18% of serials carry a vendor prefix (SG-, HGST_, TOS-, WD-, HIT-, OEM-) or are lowercased, so join to telemetry with upper(regexp_replace(serial_number, '^(SG-|HGST_|TOS-|WD-|HIT-|OEM-)', '')).
+    definition: >
+      One deployed unit (installed_asset.asset_id) at a site, built on one product, with the drive serial in installed_asset.serial_number. About 18% of serials carry a vendor prefix (SG-, HGST_, TOS-, WD-, HIT-, OEM-) or are lowercased, and telemetry serials themselves mix cases, so join with upper(telemetry_drive_summary.serial_number) = upper(regexp_replace(installed_asset.serial_number, '^(SG-|HGST_|TOS-|WD-|HIT-|OEM-)', '')).
   Product:
-    definition: A SKU (product.product_id) in one product family (product.family, values Rack Server, Storage Array, HCI Node, Backup Appliance, Edge Gateway).
+    definition: >
+      A SKU (product.product_id) in one product family (product.family, values Rack Server, Storage Array, HCI Node, Backup Appliance, Edge Gateway).
   Part:
-    definition: A replaceable part (part.part_id, part.part_number, part.category). Parts consumed by a dispatch are in dispatch_part (one row per part), which is the clean form of dispatch.parts_used.
+    definition: >
+      A replaceable part (part.part_id, part.part_number, part.category). Parts consumed by a dispatch are in dispatch_part (one row per part), which is the clean form of dispatch.parts_used.
   Supplier:
-    definition: A vendor of parts (supplier.supplier_id); part_supplier links parts to suppliers with lead_time_days and a preferred flag.
+    definition: >
+      A vendor of parts (supplier.supplier_id); part_supplier links parts to suppliers with lead_time_days and a preferred flag.
   Case:
-    definition: A support case ("case".case_id). opened_at and closed_at are VARCHAR in two formats, ISO 8601 (2026-04-02T12:11:06) from svc_cloud and US MM/DD/YYYY HH:MM from legacy_crm; parse with CASE WHEN opened_at LIKE '__/__/____%' THEN to_timestamp(opened_at, 'MM/DD/YYYY HH24:MI') ELSE opened_at::timestamp END. Severity 1 (highest) to 4. category in (drive_failure, predictive_alert, performance, connectivity, firmware, config, how_to, false_alarm).
+    definition: >
+      A support case ("case".case_id). opened_at and closed_at are VARCHAR in two formats, ISO 8601 (2026-04-02T12:11:06) from svc_cloud and US MM/DD/YYYY HH:MM from legacy_crm; parse with CASE WHEN opened_at LIKE '__/__/____%' THEN to_timestamp(opened_at, 'MM/DD/YYYY HH24:MI') ELSE opened_at::timestamp END. Severity 1 (highest) to 4. category in (drive_failure, predictive_alert, performance, connectivity, firmware, config, how_to, false_alarm).
   Dispatch:
-    definition: A technician visit (dispatch.dispatch_id) for a case; visit_number 1, 2 or 3; outcome in (resolved, parts_not_available, no_fault_found, incomplete); scheduled_at is a TIMESTAMP.
+    definition: >
+      A technician visit (dispatch.dispatch_id) for a case; visit_number 1, 2 or 3; outcome in (resolved, parts_not_available, no_fault_found, incomplete); scheduled_at is a TIMESTAMP.
   Technician:
-    definition: A field engineer (technician.technician_id) in one region with ';'-joined skills.
+    definition: >
+      A field engineer (technician.technician_id) in one region with ';'-joined skills.
   Runbook:
-    definition: A fixed procedure (runbook.runbook_id) for one product_family and category, with ';'-separated symptoms and numbered steps.
+    definition: >
+      A fixed procedure (runbook.runbook_id) for one product_family and category, with ';'-separated symptoms and numbered steps.
   Failure:
-    definition: Telemetry failure. A drive-day with failure = 1 in telemetry_daily_recent, or telemetry_drive_summary.failed = 1 with failure_date set; the drive was pulled from service. This is the definition the risk model and fleet health use.
+    definition: >
+      Telemetry failure. A drive-day with failure = 1 in telemetry_daily_recent, or telemetry_drive_summary.failed = 1 with failure_date set; the drive was pulled from service. This is the definition the risk model and fleet health use.
   Service Failure:
-    definition: Support failure. "case".failure_reported = 1, set when the case closed with resolution_code = 'hardware_replaced'. Overlaps with but does not equal telemetry Failure (rule F1); never mix the two in one count.
+    definition: >
+      Support failure. "case".failure_reported = 1, set when the case closed with resolution_code = 'hardware_replaced'. Overlaps with but does not equal telemetry Failure (rule F1); never mix the two in one count.
   Repeat Dispatch:
-    definition: A dispatch with visit_number > 1 on the same case (same-case repeat). Project 1 also counts a first visit within 30 days of a previous dispatched case closing on the same asset (cross-case repeat); unless the question says otherwise use the same-case definition. Repeat-dispatch rate = repeat dispatches / all dispatches.
+    definition: >
+      A dispatch with visit_number > 1 on the same case (same-case repeat). Project 1 also counts a first visit within 30 days of a previous dispatched case closing on the same asset (cross-case repeat); unless the question says otherwise use the same-case definition. Repeat-dispatch rate = repeat dispatches / all dispatches.
   Deflectable Case:
-    definition: A case that a runbook could have resolved without a dispatch. Operational proxy: category in (how_to, config, firmware) with severity >= 3, or category = false_alarm, where a runbook exists for the case's product family and category (join installed_asset -> product.family = runbook.product_family and "case".category = runbook.category). Ground truth is truth/case_truth.csv.deflectable.
+    definition: >
+      A case that a runbook could have resolved without a dispatch. Operational proxy: category in (how_to, config, firmware) with severity >= 3, or category = false_alarm, where a runbook exists for the case's product family and category (join installed_asset -> product.family = runbook.product_family and "case".category = runbook.category). Ground truth is truth/case_truth.csv.deflectable.
   Fleet Health:
-    definition: For a site or vault, expected_failures_30d = sum of p_fail_30d over its drives from Project 1's fleet risk table (reports/fleet_risk_sites.csv, fleet_risk_vaults.csv, loaded as fleet_risk_* tables). In SQL over the warehouse alone, the proxy is the share of drives with failed = 1 in telemetry_drive_summary joined through installed_asset to site.
+    definition: >
+      For a site or vault, expected_failures_30d = sum of p_fail_30d over its drives from Project 1's fleet risk table (reports/fleet_risk_sites.csv, fleet_risk_vaults.csv, loaded as fleet_risk_* tables). In SQL over the warehouse alone, the proxy is the share of drives with failed = 1 in telemetry_drive_summary joined through installed_asset to site.
   Risky Pod:
-    definition: A (datacenter, vault_id, pod_id) group with at least 2 telemetry failures in the quarter (telemetry_drive_summary.failed = 1 grouped by datacenter, vault_id, pod_id having count >= 2).
+    definition: >
+      A (datacenter, vault_id, pod_id) group with at least 2 telemetry failures in the quarter (telemetry_drive_summary.failed = 1 grouped by datacenter, vault_id, pod_id having count >= 2).
   Warranty Status:
-    definition: installed_asset.warranty_end >= the reference date means in warranty; NULL means unknown (10% by design, rule W1) and must be reported as unknown, not expired. Reference date for this warehouse is 2026-06-30 (last telemetry day).
+    definition: >
+      installed_asset.warranty_end >= the reference date means in warranty; NULL means unknown (10% by design, rule W1) and must be reported as unknown, not expired. Reference date for this warehouse is 2026-06-30 (last telemetry day).
   Parts Lead Time:
-    definition: part_supplier.lead_time_days for the preferred supplier (preferred = true); when a part has no preferred row, the minimum lead time across its suppliers.
+    definition: >
+      part_supplier.lead_time_days for the preferred supplier (preferred = true); when a part has no preferred row, the minimum lead time across its suppliers.
   Region:
-    definition: site.region for sites and assets; technician.region for technicians; supplier.region for suppliers; account.region is the home region and can differ from a site's region. "Cases by region" means the region of the case's asset's site.
+    definition: >
+      site.region for sites and assets; technician.region for technicians; supplier.region for suppliers; account.region is the home region and can differ from a site's region. "Cases by region" means the region of the case's asset's site.
   Depot:
-    definition: inventory.depot_id, one per region plus Central (DEPOT-AMER-West, DEPOT-AMER-East, DEPOT-EMEA, DEPOT-APJ, DEPOT-LATAM, DEPOT-Central). on_hand below reorder_point means reorder.
+    definition: >
+      inventory.depot_id, one per region plus Central (DEPOT-AMER-West, DEPOT-AMER-East, DEPOT-EMEA, DEPOT-APJ, DEPOT-LATAM, DEPOT-Central). on_hand below reorder_point means reorder.
   Reference date:
-    definition: The warehouse ends on 2026-06-30. "Last month" means June 2026 (2026-06-01 to 2026-06-30); "last quarter" means 2026 Q2 (2026-04-01 to 2026-06-30).
+    definition: >
+      The warehouse ends on 2026-06-30. "Last month" means June 2026 (2026-06-01 to 2026-06-30); "last quarter" means 2026 Q2 (2026-04-01 to 2026-06-30).
 relationships:
   - Account HAS Site (site.account_id = account.account_id, not unique on the account side)
   - Site HOSTS Installed Asset (installed_asset.site_id = site.site_id)
   - Installed Asset IS_A Product (installed_asset.product_id = product.product_id)
-  - Installed Asset REPORTS telemetry (serial join after prefix strip)
+  - Installed Asset REPORTS telemetry (serial join after prefix strip, case-insensitive)
   - Case ABOUT Installed Asset ("case".asset_id = installed_asset.asset_id)
   - Dispatch RESOLVES Case (dispatch.case_id = "case".case_id)
   - Technician PERFORMS Dispatch (dispatch.technician_id = technician.technician_id)

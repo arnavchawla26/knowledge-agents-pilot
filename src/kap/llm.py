@@ -122,8 +122,11 @@ def _retry(fn, attempts: int = 6):
             raise
 
 
-def _nim_chat(model_id: str, messages: list[dict[str, str]], max_tokens: int, temperature: float) -> dict[str, Any]:
-    body = {"model": model_id, "messages": messages, "max_tokens": max_tokens, "temperature": temperature}
+def _nim_chat(model_id: str, messages: list[dict[str, str]], max_tokens: int, temperature: float, thinking: bool) -> dict[str, Any]:
+    body: dict[str, Any] = {"model": model_id, "messages": messages, "max_tokens": max_tokens, "temperature": temperature}
+    if not thinking and "nemotron" in model_id:
+        # Nemotron 3 reasons by default; the agents ask for short structured output and turn it off.
+        body["chat_template_kwargs"] = {"enable_thinking": False}
     headers = {"Authorization": f"Bearer {env('NVIDIA_API_KEY')}", "Content-Type": "application/json"}
 
     def go():
@@ -159,11 +162,14 @@ def _anthropic_chat(model_id: str, system: str, user: str, max_tokens: int, effo
 
 
 def complete(model_key: str, system: str, user: str, *, max_tokens: int = 2048, temperature: float = 0.0,
-             effort: str = "medium", use_cache: bool = True) -> LLMResult:
-    """Single-turn completion. Deterministic settings so the cache is meaningful."""
+             effort: str = "medium", thinking: bool = True, use_cache: bool = True) -> LLMResult:
+    """Single-turn completion. Deterministic settings so the cache is meaningful.
+    thinking=False turns Nemotron's reasoning off (Claude's adaptive thinking stays on at the given
+    effort; Llama 3.2 has none)."""
     spec = MODELS[model_key]
     payload = {"model": spec["id"], "system": system, "user": user, "max_tokens": max_tokens,
-               "temperature": temperature, "effort": effort if spec["provider"] == "anthropic" else None, "v": 1}
+               "temperature": temperature, "effort": effort if spec["provider"] == "anthropic" else None,
+               "thinking": thinking if spec["provider"] == "nim" else None, "v": 1}
     key = _cache_key(payload)
     if use_cache and (hit := _cache_get(key)):
         return LLMResult(text=hit["text"], model_key=model_key, model_id=spec["id"], input_tokens=hit["input_tokens"],
@@ -172,7 +178,7 @@ def complete(model_key: str, system: str, user: str, *, max_tokens: int = 2048, 
     t0 = time.perf_counter()
     if spec["provider"] == "nim":
         messages = ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": user}]
-        data = _nim_chat(spec["id"], messages, max_tokens, temperature)
+        data = _nim_chat(spec["id"], messages, max_tokens, temperature, thinking)
         choice = data["choices"][0]["message"]
         text = choice.get("content") or ""
         usage = data.get("usage") or {}

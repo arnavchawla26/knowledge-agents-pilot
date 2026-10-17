@@ -1,0 +1,31 @@
+# Daily fleet health report, drafted by the fleet_health_reporter agent. It writes a DRAFT and
+# opens no PR and publishes nothing: a human runs `--approve` after reading it. The job needs a
+# warehouse and the NIM key as repository secrets, so by default it only runs on manual dispatch;
+# the cron is here so the schedule is visible and can be switched on when the stack is hosted.
+name: fleet-health-report
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "15 6 * * *"   # 06:15 UTC daily
+jobs:
+  draft:
+    if: ${{ vars.KAP_SCHEDULED == 'true' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.8.17"
+      - run: uv sync --frozen
+      - name: Draft the report (approval flag set above threshold; nothing published)
+        env:
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          KAP_PG_HOST: ${{ secrets.KAP_PG_HOST }}
+          KAP_PG_PORT: ${{ secrets.KAP_PG_PORT }}
+          KAP_PG_RO_USER: ${{ secrets.KAP_PG_RO_USER }}
+          KAP_PG_RO_PASSWORD: ${{ secrets.KAP_PG_RO_PASSWORD }}
+        run: uv run python -m kap.agents.fleet_health_reporter
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fleet-report-draft
+          path: reports/fleet/drafts/

@@ -1,0 +1,191 @@
+# Agent evaluation scenarios: 10 per agent, expected outcomes from Project 1's truth/ files
+# (case_truth.csv, dispatch_truth.csv) chosen deterministically by scripts in the git history of this file.
+# Fleet reporter scenarios vary the approval threshold and the model; expected flag is computed from the data.
+case_triage:
+- case_id: CS-0000051
+  expected_decision: respond_with_runbook
+  expected_runbook_id: RB-014
+  truth:
+    deflectable: true
+    deflect_reason: runbook_covers_symptom
+    true_hardware_fault: false
+- case_id: CS-0000059
+  expected_decision: respond_with_runbook
+  expected_runbook_id: RB-014
+  truth:
+    deflectable: true
+    deflect_reason: runbook_covers_symptom
+    true_hardware_fault: false
+- case_id: CS-0000060
+  expected_decision: respond_with_runbook
+  expected_runbook_id: RB-011
+  truth:
+    deflectable: true
+    deflect_reason: runbook_covers_symptom
+    true_hardware_fault: false
+- case_id: CS-0000061
+  expected_decision: respond_with_runbook
+  expected_runbook_id: RB-009
+  truth:
+    deflectable: true
+    deflect_reason: runbook_covers_symptom
+    true_hardware_fault: false
+- case_id: CS-0000070
+  expected_decision: respond_with_runbook
+  expected_runbook_id: RB-014
+  truth:
+    deflectable: true
+    deflect_reason: runbook_covers_symptom
+    true_hardware_fault: false
+- case_id: CS-0000079
+  expected_decision: escalate_to_human
+  expected_runbook_id: RB-022
+  truth:
+    deflectable: false
+    deflect_reason: needs_human
+    true_hardware_fault: true
+- case_id: CS-0000094
+  expected_decision: escalate_to_human
+  expected_runbook_id: RB-022
+  truth:
+    deflectable: false
+    deflect_reason: needs_human
+    true_hardware_fault: true
+- case_id: CS-0000108
+  expected_decision: escalate_to_human
+  expected_runbook_id: RB-022
+  truth:
+    deflectable: false
+    deflect_reason: needs_human
+    true_hardware_fault: true
+- case_id: CS-0000001
+  expected_decision: escalate_to_human
+  expected_runbook_id: null
+  truth:
+    deflectable: false
+    deflect_reason: needs_human
+    true_hardware_fault: true
+- case_id: CS-0000002
+  expected_decision: escalate_to_human
+  expected_runbook_id: null
+  truth:
+    deflectable: false
+    deflect_reason: needs_human
+    true_hardware_fault: true
+dispatch_readiness:
+- case_id: CS-0000001
+  dispatch_id: DSP-0000001
+  expected_recommendation:
+  - go
+  - ship-part-first
+  truth:
+    necessary: true
+    reason: hardware_fault
+    outcome: resolved
+    category: predictive_alert
+- case_id: CS-0000003
+  dispatch_id: DSP-0000002
+  expected_recommendation:
+  - go
+  - ship-part-first
+  truth:
+    necessary: true
+    reason: hardware_fault
+    outcome: resolved
+    category: predictive_alert
+- case_id: CS-0000004
+  dispatch_id: DSP-0000003
+  expected_recommendation:
+  - go
+  - ship-part-first
+  truth:
+    necessary: true
+    reason: hardware_fault
+    outcome: resolved
+    category: predictive_alert
+- case_id: CS-0000009
+  dispatch_id: DSP-0000004
+  expected_recommendation:
+  - go
+  - ship-part-first
+  truth:
+    necessary: true
+    reason: hardware_fault
+    outcome: resolved
+    category: performance
+- case_id: CS-0000011
+  dispatch_id: DSP-0000005
+  expected_recommendation:
+  - go
+  - ship-part-first
+  truth:
+    necessary: true
+    reason: hardware_fault
+    outcome: no_fault_found
+    category: performance
+- case_id: CS-0000050
+  dispatch_id: DSP-0000027
+  expected_recommendation:
+  - hold
+  truth:
+    necessary: false
+    reason: no_hardware_fault
+    outcome: resolved
+    category: drive_failure
+- case_id: CS-0000052
+  dispatch_id: DSP-0000028
+  expected_recommendation:
+  - hold
+  truth:
+    necessary: false
+    reason: no_hardware_fault
+    outcome: resolved
+    category: config
+- case_id: CS-0000056
+  dispatch_id: DSP-0000030
+  expected_recommendation:
+  - hold
+  truth:
+    necessary: false
+    reason: no_hardware_fault
+    outcome: no_fault_found
+    category: firmware
+- case_id: CS-0000062
+  dispatch_id: DSP-0000032
+  expected_recommendation:
+  - hold
+  truth:
+    necessary: false
+    reason: no_hardware_fault
+    outcome: resolved
+    category: performance
+- case_id: CS-0000067
+  dispatch_id: DSP-0000033
+  expected_recommendation:
+  - hold
+  truth:
+    necessary: false
+    reason: no_hardware_fault
+    outcome: no_fault_found
+    category: performance
+fleet_health_reporter:
+- threshold: 6.0
+  model: nemotron
+- threshold: 7.0
+  model: nemotron
+- threshold: 8.0
+  model: nemotron
+- threshold: 9.0
+  model: nemotron
+- threshold: 10.0
+  model: nemotron
+- threshold: 6.0
+  model: claude
+- threshold: 7.0
+  model: claude
+- threshold: 8.0
+  model: claude
+- threshold: 9.0
+  model: claude
+- threshold: 10.0
+  model: claude

@@ -1,0 +1,12 @@
+# NeMo Agent Toolkit workflow config exposing the three agents as functions (docs/NAT.md).
+# Run in an environment with nvidia-nat[mcp]==1.9.0 and `kap` importable:
+#   nat run --config_file agents/nat_workflow.yml --input "CS-0000066"
+functions:
+  case_triage:
+    _type: kap_case_triage
+  dispatch_readiness:
+    _type: kap_dispatch_readiness
+  fleet_health_report:
+    _type: kap_fleet_health_report
+workflow:
+  _type: kap_case_triage

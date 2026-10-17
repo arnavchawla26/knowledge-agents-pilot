@@ -1,0 +1,130 @@
+{
+ "agent": "fleet_health_reporter",
+ "model": "nemotron",
+ "task_id": "575edaca2ec9",
+ "report_date": "2026-10-17",
+ "draft_path": "reports/fleet/drafts/fleet_report_2026-10-17.md",
+ "needs_human_approval": true,
+ "worst_site_expected_failures_30d": 8.03,
+ "approval_threshold": 7.0,
+ "data": {
+  "report_date": "2026-10-17",
+  "top_sites": [
+   {
+    "site_id": "SITE-00432",
+    "site_name": "Lighthouse Systems Boston",
+    "city": "Boston",
+    "region": "AMER-East",
+    "account_name": "Lighthouse Systems Corp",
+    "drives": 3547,
+    "expected_failures_30d": 8.03,
+    "max_p": 0.3184,
+    "heuristic_flagged": 99
+   },
+   {
+    "site_id": "SITE-00492",
+    "site_name": "Pinecrest Mutual Amsterdam",
+    "city": "Amsterdam",
+    "region": "EMEA",
+    "account_name": "Pinecrest Mutual plc",
+    "drives": 2436,
+    "expected_failures_30d": 7.17,
+    "max_p": 0.6906,
+    "heuristic_flagged": 317
+   },
+   {
+    "site_id": "SITE-00453",
+    "site_name": "Harborview Logistics Austin",
+    "city": "Austin",
+    "region": "AMER-East",
+    "account_name": "Harborview Logistics Holdings",
+    "drives": 2398,
+    "expected_failures_30d": 7.01,
+    "max_p": 0.3184,
+    "heuristic_flagged": 55
+   },
+   {
+    "site_id": "SITE-00017",
+    "site_name": "Northwind Foods Tokyo",
+    "city": "Tokyo",
+    "region": "APJ",
+    "account_name": "Northwind Foods Holdings",
+    "drives": 2433,
+    "expected_failures_30d": 6.94,
+    "max_p": 0.4026,
+    "heuristic_flagged": 226
+   },
+   {
+    "site_id": "SITE-00656",
+    "site_name": "Lakeshore Energy Phoenix",
+    "city": "Phoenix",
+    "region": "AMER-West",
+    "account_name": "Lakeshore Energy GmbH",
+    "drives": 1219,
+    "expected_failures_30d": 6.42,
+    "max_p": 0.5718,
+    "heuristic_flagged": 92
+   }
+  ],
+  "top_vaults": [
+   {
+    "datacenter": "sac2",
+    "vault_id": 3013,
+    "drives": 1127,
+    "expected_failures_30d": 7.78,
+    "max_p": 0.3184,
+    "heuristic_flagged": 18
+   },
+   {
+    "datacenter": "sac2",
+    "vault_id": 1124,
+    "drives": 1213,
+    "expected_failures_30d": 6.79,
+    "max_p": 0.4026,
+    "heuristic_flagged": 204
+   },
+   {
+    "datacenter": "iad1",
+    "vault_id": 1028,
+    "drives": 1178,
+    "expected_failures_30d": 6.68,
+    "max_p": 0.3184,
+    "heuristic_flagged": 28
+   },
+   {
+    "datacenter": "phx1",
+    "vault_id": 1063,
+    "drives": 1219,
+    "expected_failures_30d": 6.42,
+    "max_p": 0.5718,
+    "heuristic_flagged": 92
+   },
+   {
+    "datacenter": "iad1",
+    "vault_id": 1034,
+    "drives": 1195,
+    "expected_failures_30d": 6.09,
+    "max_p": 0.2647,
+    "heuristic_flagged": 31
+   }
+  ],
+  "telemetry_last_7_days": {
+   "first_day": "2026-06-24",
+   "last_day": "2026-06-30",
+   "drives_reporting": 356012,
+   "failures_in_window": 77,
+   "drives_with_smart_warnings": 25205
+  },
+  "approval_threshold_expected_failures_30d": 7.0
+ },
+ "tool_calls": [
+  "fleet_risk",
+  "fleet_risk",
+  "sql_query"
+ ],
+ "llm_calls": 1,
+ "tokens": 2057,
+ "cost_usd": 0.0,
+ "latency_s": 35.2,
+ "budget_exceeded": false
+}

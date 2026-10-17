@@ -1,0 +1,16 @@
+query,expected,bm25_top3,bm25_rank,dense_top3,dense_rank,hybrid_top3,hybrid_rank
+RAID set went degraded right after we changed the disk group config,RB-006,RB-006;RB-003;RB-019,1,RB-006;RB-019;RB-002,1,RB-006;RB-019;RB-003,1
+host cannot see the new LUN we mapped,RB-008,RB-008;RB-001;RB-003,1,RB-008;RB-001;RB-002,1,RB-008;RB-001;RB-003,1
+how do I grow a volume to add capacity,RB-001,RB-001;RB-002;RB-022,1,RB-001;RB-002;RB-018,1,RB-001;RB-002;RB-018,1
+assign a global spare disk,RB-002,RB-002;RB-001;RB-022,1,RB-002;RB-019;RB-006,1,RB-002;RB-001;RB-019,1
+where is the system event log in the management console,RB-003,RB-003;RB-007;RB-016,1,RB-003;RB-007;RB-005,1,RB-003;RB-007;RB-016,1
+export a support bundle / health check report,RB-004,RB-004;RB-001;RB-002,1,RB-004;RB-003;RB-014,1,RB-004;RB-006;RB-002,1
+set up SNMP trap destination for alerts,RB-005,RB-005;RB-009;RB-019,1,RB-005;RB-003;RB-020,1,RB-005;RB-003;RB-007,1
+management port has the wrong IP address,RB-007,RB-007;RB-016;RB-003,1,RB-007;RB-016;RB-005,1,RB-007;RB-016;RB-003,1
+drive firmware version mismatch warning,RB-011,RB-011;RB-022;RB-014,1,RB-011;RB-013;RB-014,1,RB-011;RB-013;RB-014,1
+roll back firmware to the previous version,RB-014,RB-003;RB-014;RB-011,2,RB-014;RB-011;RB-013,1,RB-014;RB-011;RB-003,1
+rebuild is taking far too long,RB-019,RB-019;RB-003;RB-022,1,RB-019;RB-022;RB-006,1,RB-019;RB-022;RB-003,1
+temperature alarm while the HVAC was being serviced,RB-021,RB-021;RB-003;RB-004,1,RB-021;RB-003;RB-020,1,RB-021;RB-003;RB-004,1
+replace a drive that reports failed,RB-022,RB-022;RB-011;RB-001,1,RB-022;RB-002;RB-011,1,RB-022;RB-011;RB-002,1
+clock skew between nodes,RB-009,RB-009,1,RB-009;RB-010;RB-014,1,RB-009;RB-010;RB-014,1
+cannot reach the management port over the network,RB-016,RB-007;RB-016;RB-003,2,RB-016;RB-007;RB-005,1,RB-007;RB-016;RB-003,2

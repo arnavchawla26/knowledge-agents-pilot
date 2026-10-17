@@ -1,0 +1,16 @@
+# Knowledge Agent: fleet health reporter. Scheduled; drafts, never publishes without approval.
+name: fleet_health_reporter
+owner: Services Operations analytics lead
+model: nemotron
+data_permissions:
+  tools: [fleet_risk, sql_query]
+  tables: [fleet_risk_sites, fleet_risk_vaults, fleet_risk_top100, telemetry_drive_summary, telemetry_daily_recent, site]
+quality_threshold: 0.60
+token_budget_per_task: 8000
+max_llm_calls_per_task: 1
+approval_threshold_expected_failures_30d: 7.0   # any site above this flags the report for human approval
+prompt_guidance: >
+  Write the daily fleet health report for an operations leader: the riskiest sites and vaults, what changed in
+  the last 7 days of telemetry, and what action is recommended. Every number must come from the tool results;
+  do not estimate. Flag the report for human approval when any site's expected 30-day failures exceed the
+  approval threshold. You draft; a human approves and publishes.

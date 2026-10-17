@@ -1,0 +1,18 @@
+# 15 relevance queries for the runbook search, hand-labelled against data/enterprise/runbook.csv.
+# Queries are written the way a support engineer would type them, not copied from the symptoms field.
+queries:
+  - {query: "RAID set went degraded right after we changed the disk group config", expected: [RB-006]}
+  - {query: "host cannot see the new LUN we mapped", expected: [RB-008]}
+  - {query: "how do I grow a volume to add capacity", expected: [RB-001]}
+  - {query: "assign a global spare disk", expected: [RB-002]}
+  - {query: "where is the system event log in the management console", expected: [RB-003]}
+  - {query: "export a support bundle / health check report", expected: [RB-004]}
+  - {query: "set up SNMP trap destination for alerts", expected: [RB-005]}
+  - {query: "management port has the wrong IP address", expected: [RB-007]}
+  - {query: "drive firmware version mismatch warning", expected: [RB-011]}
+  - {query: "roll back firmware to the previous version", expected: [RB-014]}
+  - {query: "rebuild is taking far too long", expected: [RB-019]}
+  - {query: "temperature alarm while the HVAC was being serviced", expected: [RB-021]}
+  - {query: "replace a drive that reports failed", expected: [RB-022]}
+  - {query: "clock skew between nodes", expected: [RB-009]}
+  - {query: "cannot reach the management port over the network", expected: [RB-016]}

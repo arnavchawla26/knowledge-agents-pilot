@@ -1,0 +1,302 @@
+[
+ {
+  "question_id": 1,
+  "db_id": "sois",
+  "question": "How many support cases have severity 1?",
+  "evidence": "",
+  "SQL": "SELECT count(*) FROM \"case\" WHERE severity = 1",
+  "difficulty": "easy",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 2,
+  "db_id": "sois",
+  "question": "How many cases are there in each case category?",
+  "evidence": "",
+  "SQL": "SELECT category, count(*) FROM \"case\" GROUP BY category",
+  "difficulty": "easy",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 3,
+  "db_id": "sois",
+  "question": "How many drives failed during the quarter according to telemetry?",
+  "evidence": "",
+  "SQL": "SELECT count(*) FROM telemetry_drive_summary WHERE failed = 1",
+  "difficulty": "easy",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 4,
+  "db_id": "sois",
+  "question": "What quantity of part PRT-0004 is on hand at depot DEPOT-EMEA?",
+  "evidence": "",
+  "SQL": "SELECT on_hand FROM inventory WHERE depot_id = 'DEPOT-EMEA' AND part_id = 'PRT-0004'",
+  "difficulty": "easy",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 5,
+  "db_id": "sois",
+  "question": "How many technicians are there in each region?",
+  "evidence": "",
+  "SQL": "SELECT region, count(*) FROM technician GROUP BY region",
+  "difficulty": "easy",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 6,
+  "db_id": "sois",
+  "question": "Which five drive models have the most failures, with their failure counts?",
+  "evidence": "",
+  "SQL": "SELECT model, failure_count FROM drive_model ORDER BY failure_count DESC, model LIMIT 5",
+  "difficulty": "easy",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 7,
+  "db_id": "sois",
+  "question": "How many dispatches ended with the outcome parts_not_available?",
+  "evidence": "",
+  "SQL": "SELECT count(*) FROM dispatch WHERE outcome = 'parts_not_available'",
+  "difficulty": "easy",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 8,
+  "db_id": "sois",
+  "question": "How many sites are in the APJ region?",
+  "evidence": "",
+  "SQL": "SELECT count(*) FROM site WHERE region = 'APJ'",
+  "difficulty": "easy",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 9,
+  "db_id": "sois",
+  "question": "How many runbooks exist for each product family?",
+  "evidence": "",
+  "SQL": "SELECT product_family, count(*) FROM runbook GROUP BY product_family",
+  "difficulty": "easy",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 10,
+  "db_id": "sois",
+  "question": "Which depot and part combinations are below their reorder point?",
+  "evidence": "",
+  "SQL": "SELECT depot_id, part_id FROM inventory WHERE on_hand < reorder_point",
+  "difficulty": "easy",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 11,
+  "db_id": "sois",
+  "question": "How many cases were opened against assets in each site region?",
+  "evidence": "",
+  "SQL": "SELECT s.region, count(*) FROM \"case\" c JOIN installed_asset a ON a.asset_id = c.asset_id JOIN site s ON s.site_id = a.site_id GROUP BY s.region",
+  "difficulty": "medium",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 12,
+  "db_id": "sois",
+  "question": "How many dispatches were there per product family?",
+  "evidence": "",
+  "SQL": "SELECT p.family, count(*) FROM dispatch d JOIN \"case\" c ON c.case_id = d.case_id JOIN installed_asset a ON a.asset_id = c.asset_id JOIN product p ON p.product_id = a.product_id GROUP BY p.family",
+  "difficulty": "medium",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 13,
+  "db_id": "sois",
+  "question": "Which five parts (by part number) were used in the largest total quantity across dispatches?",
+  "evidence": "",
+  "SQL": "SELECT p.part_number, sum(dp.quantity) FROM dispatch_part dp JOIN part p ON p.part_id = dp.part_id GROUP BY p.part_number ORDER BY sum(dp.quantity) DESC, p.part_number LIMIT 5",
+  "difficulty": "medium",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 14,
+  "db_id": "sois",
+  "question": "For dispatched cases, what is the average number of visits per case, by case category?",
+  "evidence": "",
+  "SQL": "SELECT c.category, avg(v.visits) FROM (SELECT case_id, max(visit_number) AS visits FROM dispatch GROUP BY case_id) v JOIN \"case\" c ON c.case_id = v.case_id GROUP BY c.category",
+  "difficulty": "medium",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 15,
+  "db_id": "sois",
+  "question": "How many installed assets are there per product family?",
+  "evidence": "",
+  "SQL": "SELECT p.family, count(*) FROM installed_asset a JOIN product p ON p.product_id = a.product_id GROUP BY p.family",
+  "difficulty": "medium",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 16,
+  "db_id": "sois",
+  "question": "Which five technicians (by name) performed the most dispatches, with their counts?",
+  "evidence": "",
+  "SQL": "SELECT t.name, count(*) FROM dispatch d JOIN technician t ON t.technician_id = d.technician_id GROUP BY t.name ORDER BY count(*) DESC, t.name LIMIT 5",
+  "difficulty": "medium",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 17,
+  "db_id": "sois",
+  "question": "List every part number with the name of its preferred supplier.",
+  "evidence": "",
+  "SQL": "SELECT p.part_number, s.name FROM part p JOIN part_supplier ps ON ps.part_id = p.part_id AND ps.preferred = true JOIN supplier s ON s.supplier_id = ps.supplier_id",
+  "difficulty": "medium",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 18,
+  "db_id": "sois",
+  "question": "How many cases per severity were raised on Storage Array assets?",
+  "evidence": "",
+  "SQL": "SELECT c.severity, count(*) FROM \"case\" c JOIN installed_asset a ON a.asset_id = c.asset_id JOIN product p ON p.product_id = a.product_id WHERE p.family = 'Storage Array' GROUP BY c.severity",
+  "difficulty": "medium",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 19,
+  "db_id": "sois",
+  "question": "What total quantity of drive-category parts was consumed by dispatches, per technician region?",
+  "evidence": "",
+  "SQL": "SELECT t.region, sum(dp.quantity) FROM dispatch_part dp JOIN part p ON p.part_id = dp.part_id AND p.category = 'drive' JOIN dispatch d ON d.dispatch_id = dp.dispatch_id JOIN technician t ON t.technician_id = d.technician_id GROUP BY t.region",
+  "difficulty": "medium",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 20,
+  "db_id": "sois",
+  "question": "For each datacenter, how many drives are observed and how many of them failed?",
+  "evidence": "",
+  "SQL": "SELECT datacenter, count(*), sum(failed) FROM telemetry_drive_summary GROUP BY datacenter",
+  "difficulty": "medium",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 21,
+  "db_id": "sois",
+  "question": "How many cases were opened last month?",
+  "evidence": "Reference date; Case (two timestamp formats)",
+  "SQL": "SELECT count(*) FROM \"case\" WHERE (CASE WHEN opened_at LIKE '__/__/____%' THEN to_timestamp(opened_at, 'MM/DD/YYYY HH24:MI')::timestamp ELSE opened_at::timestamp END) >= '2026-06-01' AND (CASE WHEN opened_at LIKE '__/__/____%' THEN to_timestamp(opened_at, 'MM/DD/YYYY HH24:MI')::timestamp ELSE opened_at::timestamp END) < '2026-07-01'",
+  "difficulty": "hard",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 22,
+  "db_id": "sois",
+  "question": "What is the mean number of hours from case open to the first dispatch visit, by site region?",
+  "evidence": "Case (two timestamp formats); Region (site of the asset); first visit",
+  "SQL": "WITH opened AS (SELECT case_id, asset_id, CASE WHEN opened_at LIKE '__/__/____%' THEN to_timestamp(opened_at, 'MM/DD/YYYY HH24:MI')::timestamp ELSE opened_at::timestamp END AS opened_ts FROM \"case\"), first_visit AS (SELECT case_id, min(scheduled_at) AS first_at FROM dispatch WHERE visit_number = 1 GROUP BY case_id) SELECT s.region, avg(EXTRACT(EPOCH FROM (f.first_at - o.opened_ts)) / 3600.0) FROM first_visit f JOIN opened o ON o.case_id = f.case_id JOIN installed_asset a ON a.asset_id = o.asset_id JOIN site s ON s.site_id = a.site_id GROUP BY s.region",
+  "difficulty": "hard",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 23,
+  "db_id": "sois",
+  "question": "What is the repeat-dispatch rate by product family?",
+  "evidence": "Repeat Dispatch",
+  "SQL": "SELECT p.family, avg(CASE WHEN d.visit_number > 1 THEN 1.0 ELSE 0.0 END) FROM dispatch d JOIN \"case\" c ON c.case_id = d.case_id JOIN installed_asset a ON a.asset_id = c.asset_id JOIN product p ON p.product_id = a.product_id GROUP BY p.family",
+  "difficulty": "hard",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 24,
+  "db_id": "sois",
+  "question": "How many deflectable cases were opened last quarter?",
+  "evidence": "Deflectable Case; Reference date",
+  "SQL": "WITH c AS (SELECT c.*, CASE WHEN opened_at LIKE '__/__/____%' THEN to_timestamp(opened_at, 'MM/DD/YYYY HH24:MI')::timestamp ELSE opened_at::timestamp END AS opened_ts FROM \"case\" c) SELECT count(*) FROM c JOIN installed_asset a ON a.asset_id = c.asset_id JOIN product p ON p.product_id = a.product_id WHERE c.opened_ts >= '2026-04-01' AND c.opened_ts < '2026-07-01' AND ((c.category IN ('how_to', 'config', 'firmware') AND c.severity >= 3) OR c.category = 'false_alarm') AND EXISTS (SELECT 1 FROM runbook r WHERE r.product_family = p.family AND r.category = c.category)",
+  "difficulty": "hard",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 25,
+  "db_id": "sois",
+  "question": "Which five sites have the worst fleet health, with their expected 30-day failures?",
+  "evidence": "Fleet Health",
+  "SQL": "SELECT site_id, expected_failures_30d FROM fleet_risk_sites ORDER BY expected_failures_30d DESC, site_id LIMIT 5",
+  "difficulty": "hard",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 26,
+  "db_id": "sois",
+  "question": "How many risky pods are there?",
+  "evidence": "Risky Pod",
+  "SQL": "SELECT count(*) FROM (SELECT datacenter, vault_id, pod_id FROM telemetry_drive_summary WHERE failed = 1 GROUP BY datacenter, vault_id, pod_id HAVING count(*) >= 2) x",
+  "difficulty": "hard",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 27,
+  "db_id": "sois",
+  "question": "How many installed assets are in warranty, out of warranty, and of unknown warranty status?",
+  "evidence": "Warranty Status; Reference date",
+  "SQL": "SELECT CASE WHEN warranty_end IS NULL THEN 'unknown' WHEN warranty_end >= DATE '2026-06-30' THEN 'in_warranty' ELSE 'out_of_warranty' END AS warranty_status, count(*) FROM installed_asset GROUP BY 1",
+  "difficulty": "hard",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 28,
+  "db_id": "sois",
+  "question": "How many service failures were recorded on assets whose drive never failed in telemetry?",
+  "evidence": "Service Failure vs Failure; Installed Asset (serial prefix)",
+  "SQL": "SELECT count(*) FROM \"case\" c JOIN installed_asset a ON a.asset_id = c.asset_id JOIN telemetry_drive_summary t ON upper(t.serial_number) = upper(regexp_replace(a.serial_number, '^(SG-|HGST_|TOS-|WD-|HIT-|OEM-)', '')) WHERE c.failure_reported = 1 AND t.failed = 0",
+  "difficulty": "hard",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 29,
+  "db_id": "sois",
+  "question": "What is the average parts lead time for drive-category parts?",
+  "evidence": "Parts Lead Time",
+  "SQL": "WITH lt AS (SELECT p.part_id, coalesce(min(ps.lead_time_days) FILTER (WHERE ps.preferred), min(ps.lead_time_days)) AS lead_time FROM part p JOIN part_supplier ps ON ps.part_id = p.part_id WHERE p.category = 'drive' GROUP BY p.part_id) SELECT avg(lead_time) FROM lt",
+  "difficulty": "hard",
+  "answer_raw": "",
+  "answer": ""
+ },
+ {
+  "question_id": 30,
+  "db_id": "sois",
+  "question": "At the site with the worst fleet health, how many assets have an open case?",
+  "evidence": "Fleet Health; Case (open = closed_at null)",
+  "SQL": "SELECT count(DISTINCT c.asset_id) FROM \"case\" c JOIN installed_asset a ON a.asset_id = c.asset_id WHERE c.closed_at IS NULL AND a.site_id = (SELECT site_id FROM fleet_risk_sites ORDER BY expected_failures_30d DESC, site_id LIMIT 1)",
+  "difficulty": "hard",
+  "answer_raw": "",
+  "answer": ""
+ }
+]
