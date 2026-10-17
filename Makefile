@@ -47,5 +47,7 @@ ao-down:
 ao-smoke:
 	$(UV) run python -m kap.eval.ao_smoke
 
+# pattern assembled at run time so this file does not match itself
+SECRET_PAT = $(shell printf 'nvapi%s|sk%s|AKIA[0-9A-Z]{16}|ghp%s|@gm%s|/Us%s' - -ant _ ail ers/)
 secrets-check: ## must print nothing
-	git ls-files | xargs grep -nEi "nvapi-|sk-ant|AKIA[0-9A-Z]{16}|ghp_|@gmail|/Users/" || true
+	git ls-files | xargs grep -nEi "$(SECRET_PAT)" || true

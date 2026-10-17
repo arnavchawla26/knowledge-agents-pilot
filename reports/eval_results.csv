@@ -30,3 +30,17 @@ H08,hard,nemotron,control,0,0,,1,16.336,0.3212,977,861,0.0,0,1,1,"SELECT COUNT(*
 H09,hard,nemotron,control,0,0,,1,4.923,0.0181,973,290,0.0,0,1,1,SELECT AVG(ps.lead_time_days) AS average_lead_time_days FROM part p JOIN part_supplier ps ON p.part_id = ps.part_id WHERE p.category = 'drive';
 H10,hard,nemotron,control,1,1,,1,24.455,0.1087,978,667,0.0,0,1,1,"WITH worst_site AS (   SELECT site_id   FROM fleet_risk_sites   ORDER BY expected_failures_30d DESC NULLS LAST   LIMIT 1 ) SELECT COUNT(DISTINCT ia.asset_id) AS open_case_asset_count FROM installed_asset ia JOIN worst_site ws ON ia.site_id = ws.site_id JOIN ""case"" c ON c.asset_id = ia.asset_id WHERE (c.closed_at IS NULL OR c.closed_at = '');"
 E01,easy,llama,control,1,1,,1,5.316,0.0317,917,13,0.0,0,1,1,"SELECT COUNT(*) FROM ""case"" WHERE severity = 1"
+E02,easy,llama,control,1,1,,1,62.409,0.0321,918,13,0.0,0,8,8,"SELECT category, COUNT(*) FROM ""case"" GROUP BY category"
+E03,easy,llama,control,0,0,,1,13.905,0.0792,919,53,0.0,0,1,1,SELECT COUNT(*) FROM telemetry_drive_summary WHERE EXTRACT(QUARTER FROM failure_date) = EXTRACT(QUARTER FROM CURRENT_DATE) AND EXTRACT(YEAR FROM failure_date) = EXTRACT(YEAR FROM CURRENT_DATE) AND failed = 1
+E04,easy,llama,control,1,1,,1,4.485,0.0215,929,29,0.0,0,1,1,SELECT on_hand FROM inventory WHERE depot_id = 'DEPOT-EMEA' AND part_id = 'PRT-0004'
+E05,easy,llama,control,1,1,,1,2.826,0.0098,917,15,0.0,0,5,5,"SELECT region, COUNT(technician_id) FROM technician GROUP BY region"
+E06,easy,llama,control,1,1,,1,3.859,0.266,922,17,0.0,0,5,5,"SELECT model, failure_count FROM drive_model ORDER BY failure_count DESC LIMIT 5"
+E07,easy,llama,control,1,1,,1,2.479,0.4509,920,14,0.0,0,1,1,SELECT COUNT(*) FROM dispatch WHERE outcome = 'parts_not_available'
+E08,easy,llama,control,1,1,,1,2.205,0.5951,918,15,0.0,0,1,1,SELECT COUNT(site_id) FROM site WHERE region = 'APJ'
+E09,easy,llama,control,1,1,,1,6.072,0.0533,918,17,0.0,0,4,4,"SELECT product_family, COUNT(runbook_id) FROM runbook GROUP BY product_family"
+E10,easy,llama,control,1,1,,1,2.597,0.0236,919,15,0.0,0,3,3,"SELECT depot_id, part_id FROM inventory WHERE on_hand < reorder_point"
+M01,medium,llama,control,1,1,,2,23.081,0.0974,1915,114,0.0,0,5,5,"SELECT T3.region, COUNT(T1.case_id) FROM ""case"" AS T1 JOIN installed_asset AS T2 ON T1.asset_id = T2.asset_id JOIN site AS T3 ON T2.site_id = T3.site_id GROUP BY T3.region"
+M02,medium,llama,control,0,0,,1,5.26,0.0697,918,44,0.0,0,5,0,"SELECT T1.product_family, COUNT(T2.dispatch_id)  FROM runbook AS T1  JOIN dispatch AS T2 ON T1.runbook_id = T2.dispatch_id  GROUP BY T1.product_family"
+M03,medium,llama,control,0,0,,1,11.357,0.122,927,45,0.0,0,5,5,SELECT T1.part_number FROM part AS T1 INNER JOIN dispatch_part AS T2 ON T1.part_id = T2.part_id GROUP BY T1.part_number ORDER BY SUM(T2.quantity) DESC LIMIT 5
+M04,medium,llama,control,0,0,,1,5.719,2.6254,926,46,0.0,0,8,8,"SELECT T1.category, AVG(T2.visit_number) AS avg_visits  FROM ""case"" AS T1  JOIN dispatch AS T2 ON T1.case_id = T2.case_id  GROUP BY T1.category"
+M05,medium,llama,control,1,1,,1,186.575,0.0821,918,41,0.0,0,5,5,"SELECT T1.family, COUNT(T2.asset_id)  FROM product AS T1  JOIN installed_asset AS T2 ON T1.product_id = T2.product_id  GROUP BY T1.family"
