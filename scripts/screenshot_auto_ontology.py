@@ -19,6 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 PAGES = {"auto_ontology_terms": "/terms", "auto_ontology_data_catalog": "/data", "auto_ontology_exploration": "/exploration",
          "auto_ontology_chat": "/chat", "auto_ontology_analysis": "/analysis"}
+if len(sys.argv) > 1:
+    PAGES = {k: v for k, v in PAGES.items() if k in sys.argv[1:]}
 
 
 def read_env(path: Path) -> dict[str, str]:
@@ -74,7 +76,7 @@ def main() -> int:
                     setter.call(ta, 'How many support cases have severity 1?'); ta.dispatchEvent(new Event('input', {bubbles: true}));
                     const form = ta.closest('form'); if (form) { form.requestSubmit(); return 'submitted'; }
                     ta.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', code: 'Enter', keyCode: 13, bubbles: true})); return 'enter'; })()""")
-                time.sleep(75)
+                time.sleep(170)
             shot = send("Page.captureScreenshot", format="png")
             (out_dir / f"{name}.png").write_bytes(base64.b64decode(shot["data"]))
             print("wrote", name)

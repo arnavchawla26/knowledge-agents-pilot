@@ -11,7 +11,7 @@ from kap.config import REPORTS_DIR
 
 
 def main() -> int:
-    entries = [e for e in audit.read_all() if e["tool"] == "llm.complete" and e.get("task_id")]
+    entries = [e for e in audit.read_all() if e["tool"] == "llm.complete" and e.get("task_id") and e.get("model") != "stub"]
     tasks: dict[tuple[str, str, str], dict] = {}
     for e in entries:
         key = (e["agent"], e["model"] or "?", e["task_id"])

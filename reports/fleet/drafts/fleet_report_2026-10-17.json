@@ -1,12 +1,12 @@
 {
  "agent": "fleet_health_reporter",
- "model": "nemotron",
- "task_id": "575edaca2ec9",
+ "model": "claude",
+ "task_id": "92b88e89a3d4",
  "report_date": "2026-10-17",
  "draft_path": "reports/fleet/drafts/fleet_report_2026-10-17.md",
- "needs_human_approval": true,
+ "needs_human_approval": false,
  "worst_site_expected_failures_30d": 8.03,
- "approval_threshold": 7.0,
+ "approval_threshold": 10.0,
  "data": {
   "report_date": "2026-10-17",
   "top_sites": [
@@ -115,7 +115,7 @@
    "failures_in_window": 77,
    "drives_with_smart_warnings": 25205
   },
-  "approval_threshold_expected_failures_30d": 7.0
+  "approval_threshold_expected_failures_30d": 10.0
  },
  "tool_calls": [
   "fleet_risk",
@@ -123,8 +123,9 @@
   "sql_query"
  ],
  "llm_calls": 1,
- "tokens": 2057,
- "cost_usd": 0.0,
- "latency_s": 35.2,
- "budget_exceeded": false
+ "tokens": 2768,
+ "cost_usd": 0.033632,
+ "latency_s": 13.94,
+ "budget_exceeded": false,
+ "truncated": false
 }

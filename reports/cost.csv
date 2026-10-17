@@ -1,0 +1,9 @@
+agent,model,tasks,mean_tokens_in,mean_tokens_out,mean_tokens,mean_cost_usd,total_cost_usd,mean_llm_calls,mean_tool_calls,mean_llm_latency_s
+case_triage,claude-opus-5-5,20,540,324,864,0.00865,0.1729,1.5,2.0,2.4
+case_triage,meta/llama-3.2-90b-vision-instruct,25,357,80,437,0.0,0.0,1.36,2.0,18.45
+case_triage,nvidia/nemotron-3-super-120b-a12b,29,386,110,496,0.0,0.0,1.48,2.0,1.32
+dispatch_readiness,claude-opus-5-5,20,1136,382,1518,0.01219,0.2438,1.0,2.0,2.23
+dispatch_readiness,meta/llama-3.2-90b-vision-instruct,20,816,38,854,0.0,0.0,1.0,2.0,11.83
+dispatch_readiness,nvidia/nemotron-3-super-120b-a12b,32,896,155,1051,0.0,0.0,1.0,1.97,3.94
+fleet_health_reporter,claude-opus-5-5,20,1358,1024,2382,0.0259,0.5181,1.0,3.0,5.1
+fleet_health_reporter,nvidia/nemotron-3-super-120b-a12b,21,1157,921,2078,0.0,0.0,1.0,3.0,10.7

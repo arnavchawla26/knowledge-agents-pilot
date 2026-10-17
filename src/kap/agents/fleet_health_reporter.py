@@ -42,21 +42,23 @@ def run(model: str | None = None, caller: str = "scheduler", today: dt.date | No
         telem = rt.tool("sql_query", sql=TELEMETRY_SQL, max_rows=1)["rows"][0]
         data = {"report_date": today.isoformat(), "top_sites": sites, "top_vaults": vaults, "telemetry_last_7_days": telem,
                 "approval_threshold_expected_failures_30d": threshold}
-        body = rt.llm(SYSTEM, "DATA:\n" + json.dumps(data, default=str), max_tokens=900)
+        body = rt.llm(SYSTEM, "DATA:\n" + json.dumps(data, default=str), max_tokens=2500)
         trace = rt.trace
     worst = max((s["expected_failures_30d"] for s in sites), default=0.0)
-    needs_approval = worst > threshold
+    needs_approval = worst > threshold or trace.truncated   # a cut-off draft always needs a human
     draft_dir = REPORTS_DIR / "fleet" / "drafts"
     draft_dir.mkdir(parents=True, exist_ok=True)
     path = draft_dir / f"fleet_report_{today.isoformat()}.md"
     header = (f"<!-- DRAFT, not published. agent={cfg.name} model={cfg.model} task={trace.task_id} "
-              f"needs_human_approval={needs_approval} worst_site_expected_failures_30d={worst} threshold={threshold} -->\n")
+              f"needs_human_approval={needs_approval} truncated={trace.truncated} "
+              f"worst_site_expected_failures_30d={worst} threshold={threshold} -->\n")
     path.write_text(header + body.strip() + "\n")
     meta = {"agent": cfg.name, "model": cfg.model, "task_id": trace.task_id, "report_date": today.isoformat(),
             "draft_path": str(path.relative_to(REPORTS_DIR.parent)), "needs_human_approval": needs_approval,
             "worst_site_expected_failures_30d": worst, "approval_threshold": threshold, "data": data,
             "tool_calls": [t for t, _ in trace.tool_calls], "llm_calls": trace.llm_calls, "tokens": trace.total_tokens,
-            "cost_usd": round(trace.cost_usd, 6), "latency_s": round(trace.latency_s, 2), "budget_exceeded": trace.budget_exceeded}
+            "cost_usd": round(trace.cost_usd, 6), "latency_s": round(trace.latency_s, 2), "budget_exceeded": trace.budget_exceeded,
+            "truncated": trace.truncated}
     write_json(path.with_suffix(".json"), meta)
     return meta
 

@@ -1,33 +1,40 @@
-<!-- DRAFT, not published. agent=fleet_health_reporter model=nemotron task=575edaca2ec9 needs_human_approval=True worst_site_expected_failures_30d=8.03 threshold=7.0 -->
-# Daily Fleet Health Report  
-**Report Date:** 2026-10-17  
+<!-- DRAFT, not published. agent=fleet_health_reporter model=claude task=92b88e89a3d4 needs_human_approval=False truncated=False worst_site_expected_failures_30d=8.03 threshold=10.0 -->
+# Daily Fleet Health Report: 2026-10-17
 
-## Summary  
-The fleet health report identifies sites and vaults with the highest expected 30-day failures. The approval threshold for expected 30-day failures is 7.0. Any site exceeding this threshold requires human approval before publication.  
+*Draft for human approval before publishing.*
 
-## Riskiest Sites  
-Ranked by expected_failures_30d (highest to lowest):  
-1. **SITE-00432** (Lighthouse Systems Boston): expected_failures_30d = 8.03, drives = 3547, max_p = 0.3184, heuristic_flagged = 99  
-2. **SITE-00492** (Pinecrest Mutual Amsterdam): expected_failures_30d = 7.17, drives = 2436, max_p = 0.6906, heuristic_flagged = 317  
-3. **SITE-00453** (Harborview Logistics Austin): expected_failures_30d = 7.01, drives = 2398, max_p = 0.3184, heuristic_flagged = 55  
-4. **SITE-00017** (Northwind Foods Tokyo): expected_failures_30d = 6.94, drives = 2433, max_p = 0.4026, heuristic_flagged = 226  
-5. **SITE-00656** (Lakeshore Energy Phoenix): expected_failures_30d = 6.42, drives = 1219, max_p = 0.5718, heuristic_flagged = 92  
+## Summary
+- **Approval threshold not exceeded.** The threshold is 10.0 expected 30-day failures. The highest site is 8.03 (Lighthouse Systems Boston), so the threshold-based approval flag is **not triggered**. Standard human review still applies.
+- **Stale telemetry.** The telemetry window is 2026-06-24 to 2026-06-30, but the report date is 2026-10-17. Treat the telemetry figures as out of date until the feed is confirmed.
 
-## Riskiest Vaults  
-Ranked by expected_failures_30d (highest to lowest):  
-1. **sac2, vault_id 3013**: expected_failures_30d = 7.78, drives = 1127, max_p = 0.3184, heuristic_flagged = 18  
-2. **sac2, vault_id 1124**: expected_failures_30d = 6.79, drives = 1213, max_p = 0.4026, heuristic_flagged = 204  
-3. **iad1, vault_id 1028**: expected_failures_30d = 6.68, drives = 1178, max_p = 0.3184, heuristic_flagged = 28  
-4. **phx1, vault_id 1063**: expected_failures_30d = 6.42, drives = 1219, max_p = 0.5718, heuristic_flagged = 92  
-5. **iad1, vault_id 1034**: expected_failures_30d = 6.09, drives = 1195, max_p = 0.2647, heuristic_flagged = 31  
+## Riskiest sites
+| Site | Region | Drives | Exp. failures (30d) | Max p | Heuristic flagged |
+|---|---|---|---|---|---|
+| SITE-00432 Lighthouse Systems Boston | AMER-East | 3547 | 8.03 | 0.3184 | 99 |
+| SITE-00492 Pinecrest Mutual Amsterdam | EMEA | 2436 | 7.17 | 0.6906 | 317 |
+| SITE-00453 Harborview Logistics Austin | AMER-East | 2398 | 7.01 | 0.3184 | 55 |
+| SITE-00017 Northwind Foods Tokyo | APJ | 2433 | 6.94 | 0.4026 | 226 |
+| SITE-00656 Lakeshore Energy Phoenix | AMER-West | 1219 | 6.42 | 0.5718 | 92 |
 
-## Last 7 Days of Telemetry  
-- First day: 2026-06-24  
-- Last day: 2026-06-30  
-- Drives reporting: 356012  
-- Failures in window: 77  
-- Drives with SMART warnings: 25205  
+## Riskiest vaults
+| Datacenter / Vault | Drives | Exp. failures (30d) | Max p | Heuristic flagged |
+|---|---|---|---|---|
+| sac2 / 3013 | 1127 | 7.78 | 0.3184 | 18 |
+| sac2 / 1124 | 1213 | 6.79 | 0.4026 | 204 |
+| iad1 / 1028 | 1178 | 6.68 | 0.3184 | 28 |
+| phx1 / 1063 | 1219 | 6.42 | 0.5718 | 92 |
+| iad1 / 1034 | 1195 | 6.09 | 0.2647 | 31 |
 
-## Recommended Actions  
-- Prioritize inspection and preventive maintenance at **SITE-00432**, **SITE-00492**, and **SITE-00453** due to expected 30-day failures exceeding the approval threshold of 7.0.  
-- Focus diagnostic efforts on **vault sac2/3013** and **sac2/1124**, which show the highest vault
+## Last 7 days of telemetry
+- **Window:** 2026-06-24 to 2026-06-30
+- **Drives reporting:** 356012
+- **Failures in window:** 77
+- **Drives with SMART warnings:** 25205
+- **Change from the prior period:** not available. The data has no comparison period.
+
+## Recommended actions
+1. **Fix the telemetry feed first.** Confirm why the latest window ends 2026-06-30 and refresh the data before relying on these figures.
+2. **Prioritize Pinecrest Mutual Amsterdam.** It has the highest single-drive probability (max p 0.6906) and the most heuristic flags (317). Schedule proactive drive replacement review.
+3. **Review Lighthouse Systems Boston.** It has the highest expected failures (8.03), the closest to the 10.0 threshold. Monitor daily.
+4. **Check Lakeshore Energy Phoenix against vault phx1 / 1063.** Both show identical figures (1219 drives, 6.42, 0.5718, 92). This may be the same footprint, which would avoid double-counting.
+5. **Investigate sac2 / 1124 and Northwind Foods Tokyo.** Both have high heuristic flag counts (204 and 226) alongside elevated risk.

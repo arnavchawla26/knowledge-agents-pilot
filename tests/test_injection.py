@@ -108,6 +108,7 @@ def test_budget_caps_model_calls(monkeypatch):
     rt = AgentRuntime.__new__(AgentRuntime)
     rt.cfg = cfg
     rt.trace = base.TaskTrace(agent=cfg.name, task_id="t", model=cfg.model)
+    rt._llm_wall = 0.0
     rt.llm("x", "y")
     with pytest.raises(BudgetExceeded):
         rt.llm("x", "y")

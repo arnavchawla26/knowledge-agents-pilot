@@ -68,8 +68,10 @@ class TaskTrace:
     input_tokens: int = 0
     output_tokens: int = 0
     cost_usd: float = 0.0
-    latency_s: float = 0.0
+    latency_s: float = 0.0          # tool time + the model's own latency (original latency for cached replies)
+    llm_latency_s: float = 0.0
     budget_exceeded: bool = False
+    truncated: bool = False         # a model reply hit max_tokens; the output is not trustworthy
 
     @property
     def total_tokens(self) -> int:
@@ -103,6 +105,7 @@ class AgentRuntime:
         self.trace = TaskTrace(agent=cfg.name, task_id=task_id or uuid.uuid4().hex[:12], model=cfg.model)
         self.client = MCPToolClient(cfg.name, cfg.tools, caller=caller, task_id=self.trace.task_id)
         self._t0 = 0.0
+        self._llm_wall = 0.0
 
     def __enter__(self) -> "AgentRuntime":
         self._t0 = time.perf_counter()
@@ -110,7 +113,10 @@ class AgentRuntime:
         return self
 
     def __exit__(self, *exc) -> None:
-        self.trace.latency_s = time.perf_counter() - self._t0
+        wall = time.perf_counter() - self._t0
+        # replace the wall time of model calls with the latency the model reported (a cached reply
+        # carries the latency of the original call), so reruns report what a live run would
+        self.trace.latency_s = wall - self._llm_wall + self.trace.llm_latency_s
         self.client.__exit__(*exc)
 
     def tool(self, name: str, **args: Any) -> dict[str, Any]:
@@ -128,6 +134,10 @@ class AgentRuntime:
         guidance = f"OWNER GUIDANCE ({self.cfg.owner}): {self.cfg.prompt_guidance}\n\n{system}"
         t0 = time.perf_counter()
         res = (_stub.complete if _stub else llm.complete)(self.cfg.model, guidance, user, max_tokens=max_tokens, thinking=False)
+        self._llm_wall += time.perf_counter() - t0
+        self.trace.llm_latency_s += res.latency_s
+        if (res.raw or {}).get("stop_reason") in ("length", "max_tokens"):
+            self.trace.truncated = True
         self.trace.llm_calls += 1
         self.trace.input_tokens += res.input_tokens
         self.trace.output_tokens += res.output_tokens

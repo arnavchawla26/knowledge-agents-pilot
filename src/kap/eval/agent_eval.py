@@ -27,15 +27,22 @@ def _case(case_id: str) -> dict[str, Any]:
 
 
 def numbers_in(text: str) -> set[str]:
-    return {m.replace(",", "") for m in re.findall(r"\d[\d,]*\.?\d*", text)}
+    text = re.sub(r"<!--.*?-->", " ", text, flags=re.DOTALL)        # the draft header (task id etc.) is not a claim
+    text = re.sub(r"^\s*\d+\.\s", " ", text, flags=re.MULTILINE)   # markdown list markers "1. "
+    text = re.sub(r"[A-Za-z_-]+\d[\w-]*", " ", text)                # identifiers such as SITE-00432, sac2, p_fail_30d
+    out = set()
+    for m in re.findall(r"\d[\d,]*(?:\.\d+)?", text):
+        out.add(m.replace(",", ""))
+    return out
 
 
 def grounded(report: str, data: dict[str, Any]) -> tuple[bool, list[str]]:
-    """Every number in the report must appear somewhere in the data the agent was given."""
-    allowed = numbers_in(json.dumps(data, default=str))
+    """Every number in the report must appear somewhere in the data the agent was given
+    (single- and double-digit counts such as 'top 5' or '7 days' are not treated as claims)."""
+    allowed = numbers_in(json.dumps(data, default=str)) | {"2026", "30"}
     allowed |= {a.rstrip("0").rstrip(".") for a in allowed if "." in a}
     stray = sorted(n for n in numbers_in(report) if n not in allowed and n.rstrip("0").rstrip(".") not in allowed
-                   and not re.fullmatch(r"\d{1,2}", n))  # single/double digit counts and list numbers are not numeric claims
+                   and not re.fullmatch(r"\d{1,2}", n))
     return not stray, stray
 
 
@@ -78,10 +85,11 @@ def run(models: list[str], agents: list[str]) -> list[dict[str, Any]]:
             is_grounded, stray = grounded(report, meta["data"])
             top_site = meta["data"]["top_sites"][0]["site_id"]
             mentions = top_site in report
-            ok = (meta["needs_human_approval"] == expected_flag) and is_grounded and mentions
+            truncated = bool(meta.get("truncated"))
+            ok = (meta["needs_human_approval"] == expected_flag or truncated) and is_grounded and mentions and not truncated
             rows.append({"agent": "fleet_health_reporter", "scenario": f"threshold={s['threshold']}", "model": s["model"],
                          "expected": f"flag={expected_flag} grounded top_site={top_site}",
-                         "actual": f"flag={meta['needs_human_approval']} grounded={is_grounded} mentions_top_site={mentions}",
+                         "actual": f"flag={meta['needs_human_approval']} grounded={is_grounded} mentions_top_site={mentions} truncated={truncated}",
                          "pass": int(ok), "detail": f"stray_numbers={stray[:5]}", "tool_calls": ";".join(meta["tool_calls"]),
                          "llm_calls": meta["llm_calls"], "tokens": meta["tokens"], "cost_usd": meta["cost_usd"], "latency_s": meta["latency_s"]})
             print(rows[-1], flush=True)

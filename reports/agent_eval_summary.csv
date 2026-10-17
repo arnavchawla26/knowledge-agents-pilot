@@ -1,0 +1,9 @@
+agent,model,n,pass_rate,mean_tokens,mean_cost_usd,mean_latency_s
+case_triage,claude,10,1.0,864,0.00865,6.06
+case_triage,llama,10,0.8,414,0.0,47.4
+case_triage,nemotron,10,1.0,500,0.0,4.76
+dispatch_readiness,claude,10,1.0,1518,0.01219,5.34
+dispatch_readiness,llama,10,1.0,854,0.0,24.53
+dispatch_readiness,nemotron,10,1.0,1055,0.0,5.58
+fleet_health_reporter,claude,5,1.0,2752,0.03332,13.89
+fleet_health_reporter,nemotron,5,1.0,2146,0.0,27.44

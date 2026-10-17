@@ -1,0 +1,7 @@
+model,arm,n,strict_accuracy,lenient_accuracy,easy,medium,hard,sql_errors,mean_latency_s,total_input_tokens,total_output_tokens,total_cost_usd
+claude,control,30,0.6667,0.7,0.9,0.9,0.2,0,2.777,45643,5556,0.2937
+claude,ontology,30,0.9333,0.9667,1.0,0.9,0.9,0,2.741,117553,5516,0.5805
+llama,control,30,0.5667,0.5667,0.9,0.6,0.2,2,33.503,32705,1800,0.0
+llama,ontology,30,0.7333,0.7333,1.0,0.8,0.4,1,17.023,85380,2387,0.0
+nemotron,control,30,0.6667,0.7,0.8,0.9,0.3,0,13.77,30510,12476,0.0
+nemotron,ontology,30,0.8,0.8,0.9,0.9,0.6,0,13.259,77113,15542,0.0
