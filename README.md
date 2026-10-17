@@ -6,15 +6,15 @@ a technical program manager needs to decide whether to scale them.
 
 ## Why this shape
 
-On October 6, 2026 Dell announced the next release of the Dell AI Data Platform with an
-Enterprise Knowledge Graph and **Knowledge Agents**: agents built on a curated slice of the graph,
-with owner-set prompt guidance, data access permissions, quality guardrails and token cost
-thresholds, model agnostic across open and closed models. The announcement puts the operating model in one line: agents become the operator, and humans are brought
-back in to review or approve "when they need them". This repository is a small, measured
+The enterprise AI data platforms announced across the industry in 2026 describe **Knowledge
+Agents**: agents built on a curated slice of a knowledge graph, with owner-set prompt guidance,
+data access permissions, quality guardrails and token cost thresholds, model agnostic across open
+and closed models. The operating model in one line: agents become the operator, and humans are
+brought back in to review or approve when they need to. This repository is a small, measured
 version of that idea, built on Project 1's warehouse (`services-ops-intelligence`) and its risk
 model:
 
-| Dell AI Data Platform piece | Here |
+| Platform piece | Here |
 |---|---|
 | Unified Semantic Layer, extendable with NVIDIA Auto Ontology | NVIDIA Auto Ontology (pinned 2026-10-15) ingesting the warehouse: 26 tables, 221 columns, a compiled semantic layer of 26 terms, NL-to-SQL with provenance through its API; plus a 20-term glossary (`questions/glossary.yaml`) that is the agents' owner-set guidance and was pushed into Auto Ontology's term definitions through its management API (`kap.eval.ao_enrich`) |
 | Data Search Engine (hybrid keyword + vector) | Elasticsearch 8 with BM25 + NeMo Retriever embeddings (`nvidia/nemotron-3-embed-1b` via NIM), reciprocal rank fusion, over 22 runbooks and 500 case notes |
@@ -148,7 +148,7 @@ limited, not for production).
 
 ## Scope: every design item, done or cut
 
-The design is sections 11 and 12 of the brainstorm notes that planned the three Dell projects.
+The design is sections 11 and 12 of the design notes that planned the three projects.
 Each item is either done, with the file or report that proves it, or cut, with the reason.
 
 | Design item | Status | Where, or why not |
