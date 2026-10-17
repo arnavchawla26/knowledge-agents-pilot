@@ -1,0 +1,48 @@
+# knowledge-agents-pilot: compose project "kap".
+#   docker compose -p kap up -d
+# Services:
+#   es        Elasticsearch 8 on host port 9201 (9200 belongs to Project 2), 1 GB heap, no security.
+#   sourcedb  Postgres 16 on host port 5434: a full load of Project 1's enterprise CSVs and
+#             telemetry summary, using Project 1's sql/schema.sql unchanged (see docs/DATA.md for
+#             why this exists next to Project 1's own sois-postgres on 5432).
+# NVIDIA Auto Ontology runs from its own compose file in vendor/auto-ontology (ports 3000-3003,
+# pgvector Postgres mapped to 5433, pgAdmin 5050); see docs/AUTO_ONTOLOGY.md and `make ao-up`.
+services:
+  es:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.4
+    container_name: kap-es
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ports:
+      - "9201:9200"
+    volumes:
+      - kap_esdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"\\(green\\|yellow\\)\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+  sourcedb:
+    image: postgres:16
+    container_name: kap-sourcedb
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      POSTGRES_USER: ${KAP_PG_USER:-sois}
+      POSTGRES_PASSWORD: ${KAP_PG_PASSWORD:-kap_local_dev_only}
+      POSTGRES_DB: ${KAP_PG_DB:-sois}
+    ports:
+      - "5434:5432"
+    volumes:
+      - kap_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${KAP_PG_USER:-sois} -d ${KAP_PG_DB:-sois}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+volumes:
+  kap_esdata:
+  kap_pgdata:

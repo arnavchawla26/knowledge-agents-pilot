@@ -1,0 +1,12 @@
+.env
+.venv/
+vendor/
+cache/
+audit/*.jsonl
+!audit/sample.jsonl
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+reports/tmp/

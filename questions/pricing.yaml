@@ -1,0 +1,20 @@
+# Dollar rates used by the cost dashboard. Tokens are measured from API usage fields; dollars
+# are tokens times these rates. Sources are listed so no number is invented.
+models:
+  nemotron:
+    id: nvidia/nemotron-3-super-120b-a12b
+    input_per_mtok: 0.0
+    output_per_mtok: 0.0
+    note: >
+      NVIDIA API catalog free developer tier (build.nvidia.com), rate limited, "not for production".
+      Billed cost is zero; tokens are reported so a reader can apply their own NIM pricing.
+  llama:
+    id: meta/llama-3.2-90b-vision-instruct
+    input_per_mtok: 0.0
+    output_per_mtok: 0.0
+    note: same free developer tier as above.
+  claude:
+    id: claude-opus-5-5
+    input_per_mtok: 4.0
+    output_per_mtok: 20.0
+    note: Anthropic first-party API list price, as published in the claude-api reference table dated 2026-10-06.
