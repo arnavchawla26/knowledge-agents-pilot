@@ -3,7 +3,7 @@ UV ?= $(HOME)/.local/bin/uv
 COMPOSE = docker compose -p kap
 AO_DIR = vendor/auto-ontology
 
-.PHONY: up down load index search-eval eval agent-eval cost program-charts test ao-up ao-down ao-smoke fleet-report secrets-check
+.PHONY: up down load index search-eval eval agent-eval cost program-charts test ao-up ao-down ao-enrich ao-smoke fleet-report secrets-check
 
 up:            ## Elasticsearch (9201) and the full-data source Postgres (5434)
 	$(COMPOSE) up -d
@@ -44,8 +44,11 @@ ao-up:         ## NVIDIA Auto Ontology stack (needs vendor/auto-ontology/.env, s
 ao-down:
 	cd $(AO_DIR) && docker compose down
 
-ao-smoke:
-	$(UV) run python -m kap.eval.ao_smoke
+ao-enrich:     ## push questions/glossary.yaml into Auto Ontology's term definitions and SQL attributes
+	$(UV) run python -m kap.eval.ao_enrich
+
+ao-smoke:      ## evaluation questions through Auto Ontology's API, before/after the glossary
+	AO_LAYER=glossary $(UV) run python -m kap.eval.ao_smoke
 
 # pattern assembled at run time so this file does not match itself
 SECRET_PAT = $(shell printf 'nvapi%s|sk%s|AKIA[0-9A-Z]{16}|ghp%s|@gm%s|/Us%s' - -ant _ ail ers/)

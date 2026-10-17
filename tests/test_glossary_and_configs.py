@@ -1,5 +1,7 @@
 import yaml
 
+from conftest import needs_db
+
 from kap.config import AGENTS_DIR, QUESTIONS_DIR
 from kap.agents.base import AgentConfig
 from kap.tools import ALL_TOOLS
@@ -34,3 +36,30 @@ def test_eval_set_shape():
         assert q["sql"].strip().upper().startswith(("SELECT", "WITH"))
     assert by == {"easy": 10, "medium": 10, "hard": 10}
     assert len({q["id"] for q in qs}) == 30
+
+
+def test_auto_ontology_enrichment_is_built_from_the_glossary():
+    """Every Auto Ontology term the enrichment targets gets a non-trivial description, and the SQL
+    attributes it adds say nothing the glossary does not (each is keyed to a glossary term)."""
+    from kap.eval.ao_enrich import SQL_ATTRIBUTES, TERM_MAP, build_descriptions
+
+    g = yaml.safe_load((QUESTIONS_DIR / "glossary.yaml").read_text())["terms"]
+    descs = build_descriptions()
+    assert set(descs) == set(TERM_MAP)
+    for name, d in descs.items():
+        assert len(d) > 100, name
+        if name in ("Case", "Dispatch", "Installed Asset", "Site", "Product", "Part"):
+            assert "Relationships:" in d, name  # the join paths the compiled layer could not find
+    for _term, attr_name, _desc, expr in SQL_ATTRIBUTES:
+        assert expr.upper().startswith("SELECT")
+        assert attr_name in g or attr_name in ("Opened At (parsed)", "Telemetry serial join"), attr_name
+
+
+@needs_db
+def test_auto_ontology_sql_attributes_execute():
+    from kap import text2sql
+    from kap.eval.ao_enrich import SQL_ATTRIBUTES
+
+    for _term, name, _desc, expr in SQL_ATTRIBUTES:
+        _, rows, _ = text2sql.run_sql(expr, cap=5)
+        assert rows, name
