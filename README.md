@@ -218,3 +218,7 @@ Layout: `src/kap/` (tools, MCP server and client, agents, eval), `agents/` (conf
 `questions/` (eval set, glossary, scenarios, pricing), `reports/` (every number and chart),
 `program/` (charters, decisions, status, runbook, memos), `docs/`, `tests/`, `audit/` (sample).
 Screenshots of the Auto Ontology catalog, terms and chat are in `reports/screenshots/`.
+
+## Results page
+
+`site/` is a static page of the results in this README, built by `scripts/build_site.py` from `reports/` and `docs/`. The script writes `site/data/*.json` and `site/img/*`; `site/index.html`, `app.js` and `style.css` are hand-written and read those files. `vercel.json` serves the folder as-is, so nothing is computed at request time. Rebuild the page after regenerating reports.

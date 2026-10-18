@@ -10,3 +10,7 @@ __pycache__/
 .ruff_cache/
 *.egg-info/
 reports/tmp/
+
+# Vercel link and local site screenshots
+.vercel/
+site/screenshots/

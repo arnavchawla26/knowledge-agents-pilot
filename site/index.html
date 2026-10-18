@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>knowledge-agents-pilot: results</title>
+<meta name="description" content="Measured results of knowledge-agents-pilot: text-to-SQL with and without a semantic layer across three models, agent evaluations, cost per task, runbook search and the Auto Ontology before-and-after, built from the repository's reports/ files.">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" integrity="sha384-bs/nf9FbdNouRbMiFcrcZfLXYPKiPaGVGplVbv7dLGECccEXDW+S3zjqSKR5ZEaD" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+<div class="wrap">
+
+<header class="site">
+  <h1>knowledge-agents-pilot</h1>
+  <p class="lede" id="intro">Three governed Knowledge Agents that do Services Operations work on top of NVIDIA Auto Ontology, Elasticsearch and MCP, each with the evaluation, cost record and program paperwork a technical program manager needs to decide whether to scale it.</p>
+  <div class="links">
+    <a href="https://github.com/arnavchawla26/knowledge-agents-pilot">Repository on GitHub</a>
+    <a href="https://github.com/arnavchawla26/knowledge-agents-pilot/blob/main/README.md">README</a>
+    <a href="https://github.com/arnavchawla26/knowledge-agents-pilot/tree/main/reports">reports/ (the source of every number here)</a>
+    <a href="https://github.com/arnavchawla26/knowledge-agents-pilot/tree/main/program">program/</a>
+  </div>
+  <div class="realgen">
+    <div><b>Real</b><span>the drive telemetry under everything (Backblaze 2026 Q2 via the sibling project), the 30-day risk scores from its model, NVIDIA Auto Ontology, the models, the latencies and token counts.</span></div>
+    <div><b>Generated</b><span>accounts, sites, assets, cases, dispatches, parts, inventory, technicians and runbooks, seeded with ground truth; case text is templated. Dollar costs on NIM are not real: the free developer tier bills nothing, so those rows say $0 and report tokens.</span></div>
+  </div>
+  <div class="notice"><b>What is live here.</b> This page is static: <code>scripts/build_site.py</code> reads <code>reports/</code> and <code>program/</code> and writes the JSON the charts draw from. Elasticsearch, Postgres, the MCP server, the agents and NVIDIA Auto Ontology do not run on Vercel. From a clone, <code>make up && make load && make index</code> brings up the stack, and <code>make eval && make agent-eval && make search-eval && make cost</code> reruns every evaluation from the committed model-response cache.</div>
+  <nav class="toc">
+    <a href="#t2s">Text-to-SQL</a>
+    <a href="#agents">Agents</a>
+    <a href="#cost">Cost</a>
+    <a href="#search">Search</a>
+    <a href="#ao">Auto Ontology</a>
+    <a href="#screens">Screenshots</a>
+    <a href="#memo">Memo</a>
+    <a href="#draft">Fleet report draft</a>
+    <a href="#program">Program folder</a>
+  </nav>
+</header>
+
+<section id="t2s">
+  <h2>Text-to-SQL: schema-only control vs ontology-grounded</h2>
+  <p class="sub">30 questions (10 easy, 10 medium, 10 hard, where a business definition decides the answer), one repair turn per arm, scored by execution match (set of gold rows equals set of predicted rows). The ontology arm is the same prompt plus the glossary, so the delta is the semantic layer's.</p>
+  <div id="t2s-tiles"></div>
+  <div class="grid2">
+    <div class="card">
+      <h3>Accuracy on all 30 questions</h3>
+      <div class="chart"><canvas id="c-t2s-all"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Accuracy on the hard ten</h3>
+      <div class="chart"><canvas id="c-t2s-hard"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>The matrix</h3>
+    <div id="t2s-table"></div>
+    <p class="src">reports/eval_summary.csv</p>
+  </div>
+  <div class="card">
+    <h3>Hard ten, question by question</h3>
+    <p class="sub">C = schema-only control, O = schema plus glossary. A filled cell is a strict pass.</p>
+    <div id="t2s-hard-table"></div>
+    <p class="src">reports/eval_results.csv</p>
+  </div>
+  <p class="note">Caveats from the README: 30 questions, generated data, and one author's glossary written against the same schema. Latency for the NIM models includes free-tier throttling and retries, so it is not a model benchmark.</p>
+</section>
+
+<section id="agents">
+  <h2>Agents: 10 truth-backed scenarios each</h2>
+  <p class="sub">Case triage (decision plus runbook), dispatch readiness (go, hold, or ship the part first) and the fleet health reporter (approval flag, grounding, not truncated), each scored against the sibling project's truth files. 10 scenarios is a smoke test, not a measurement.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3>Pass rate by agent and model</h3>
+      <div class="chart"><canvas id="c-agents"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Summary</h3>
+      <div id="agents-table"></div>
+      <p class="src">reports/agent_eval_summary.csv</p>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Every scenario</h3>
+    <div id="agents-detail-table"></div>
+    <p class="src">reports/agent_eval.csv</p>
+  </div>
+</section>
+
+<section id="cost">
+  <h2>Cost per task, from the audit log</h2>
+  <p class="sub">Mean over every run in the audit log, including the fleet reporter's truncated first run. NIM rows cost $0 on the free tier (rate limited, not for production); Claude rows use list price.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3>Tokens per task</h3>
+      <div class="chart"><canvas id="c-tokens"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Dollars per task at list price</h3>
+      <div class="chart"><canvas id="c-dollars"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Cost table</h3>
+    <div id="cost-table"></div>
+    <p class="src">reports/cost.csv</p>
+  </div>
+</section>
+
+<section id="search">
+  <h2>Runbook search: BM25, dense, hybrid</h2>
+  <p class="sub">15 hand-labelled queries over 22 runbooks. Dense is NeMo Retriever embeddings via NIM; hybrid is reciprocal rank fusion of both. With this little data the comparison proves the plumbing, not a retrieval claim.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3>hit@1, hit@3 and MRR</h3>
+      <div class="chart"><canvas id="c-search"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Summary</h3>
+      <div id="search-table"></div>
+      <p class="src">reports/search_eval_summary.json</p>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Rank of the expected runbook per query</h3>
+    <div id="search-detail-table"></div>
+    <p class="src">reports/search_eval.csv</p>
+  </div>
+</section>
+
+<section id="ao">
+  <h2>NVIDIA Auto Ontology: before and after the glossary</h2>
+  <p class="sub">Auto Ontology's own pipeline through its API, on the free NIM tier. Layer v0 is the semantic layer as compiled, with empty term descriptions; glossary is after the pilot's 20-term glossary was pushed into its term definitions through the management API. Rephrased means the same question in the layer's own nouns with the join path and the period spelled out.</p>
+  <div class="card">
+    <h3>Summary</h3>
+    <div id="ao-summary-table"></div>
+  </div>
+  <div class="card">
+    <h3>Every run</h3>
+    <div id="ao-table"></div>
+    <p class="src">reports/auto_ontology_rerun.csv; verbatim SQL, answers and provenance in reports/auto_ontology_smoke.md</p>
+  </div>
+  <p class="note">This is a finding about an out-of-the-box deployment at one commit on this schema with one model, not a benchmark of the product. The per-model ontology numbers above are the pilot's own harness.</p>
+</section>
+
+<section id="screens">
+  <h2>Auto Ontology screenshots</h2>
+  <p class="sub">The catalog, the term definitions after the glossary push, and the chat. Auto Ontology runs from its own pinned compose file (<code>make ao-up</code>), not on Vercel.</p>
+  <div id="screens-list"></div>
+</section>
+
+<section id="memo">
+  <h2>What the pilot proved: case triage agent</h2>
+  <p class="sub">One of the three memos in <code>program/</code>, rendered at build time. The other two are linked in the program folder below, including the fleet reporter's memo that keeps its 0/10 first run.</p>
+  <div class="doc" id="memo-doc"><p class="loading">Loading the memo.</p></div>
+</section>
+
+<section id="draft">
+  <h2>Latest fleet health report draft</h2>
+  <p class="sub" id="draft-sub"></p>
+  <div class="doc draft" id="draft-doc"><span class="draft-label">DRAFT, NOT PUBLISHED</span><p class="loading">Loading the draft.</p></div>
+</section>
+
+<section id="program">
+  <h2>Program folder</h2>
+  <p class="sub">The artifacts a technical program manager keeps for a pilot like this one. Everything dated was written on the date shown; nothing is backdated.</p>
+  <ul class="files" id="program-list"></ul>
+</section>
+
+<footer>
+  <p>Built from <code>reports/</code> and <code>program/</code> at commit <span id="commit"></span> on <span id="generated"></span> by <code>scripts/build_site.py</code>. Charts: Chart.js 4.4.1 from cdnjs. No analytics, no other scripts.</p>
+  <p>Source telemetry: Backblaze Hard Drive Data (cited per their terms). <a href="https://arnav-chawla.vercel.app">Arnav Chawla</a>.</p>
+</footer>
+
+</div>
+<script src="common.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
